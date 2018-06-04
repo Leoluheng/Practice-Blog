@@ -1,0 +1,51 @@
+#define main()
+<div class="row">
+    <div id="vmaig-content" class="col-md-8 col-lg-9">
+        <!-- 警告框 -->
+        <div class="well alert hidden-xs fade in">
+            <button class="close" data-dismiss="alert" type="button">&times;</button>
+            #(website_title)
+        </div>
+
+        <div class="visible-xs">
+            <div class="search">
+                <form class="form-inline clearfix" role="form" method="get" action="/search/"> 
+                    <input type="text" class="form-control" id="top-s" name="s">
+                    <button class="btn btn-vmaig">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- 首页文章列表 -->
+        <div id="home-post-list">
+            <!-- 首页轮播 -->
+            #if(null != #(carousel_page_list))
+             #include("carousel.html")
+            #end
+
+            <!--首页文章列表 -->
+            #if(null != #(article_list))
+                #setLocal(post_list = #(article_list))
+            #for(post : post_list)
+               #include("home_post.html")
+            #end
+            #end
+
+            <!--分页 -->
+            #if(null != page_obj)
+            #include("pagination.html")
+            #end
+        </div>
+    </div>
+
+    <!-- 右边的widgets -->
+    <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
+        #include("tags_cloud.html")
+        #include("search.html")
+        #include("hotest_posts.html")
+        #include("latest_comments.html")
+        #include("links.html")
+    </div>
+</div>
+#end
