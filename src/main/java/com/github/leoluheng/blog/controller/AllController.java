@@ -29,9 +29,9 @@ public class AllController extends Controller {
 
     // public methods
     public void index() {
-        render("/WEB-INF/view/layout/all.html");
+        render("/blog/all.html");
         setAttr("category_list", ContentManager.get_category_list());
-        setAttr("article_list", ContentManager.get_article_list());
+        setAttr("article_list", ContentManager.get_article_list("all"));
 
     }
 

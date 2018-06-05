@@ -9,8 +9,7 @@
             </h3>
         </div>
         <div id="links" class="padding10 list-group collapse in">
-            #set(links = #(links))
-            #for(link : links)
+            #for(link : #(links))
             <a title="#(link.title)" target="_blank" href="#(link.url)" class="btn btn-xs btn-#(link.color)">#(link.title)</a>
             #end
         </div>

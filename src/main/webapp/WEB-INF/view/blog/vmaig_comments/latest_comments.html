@@ -12,7 +12,7 @@
             #for(comment: #(latest_comment_list))
             <li class="list-group-item clearfix">
             <div class="comment-tx">
-                #if("" != comment.user_img)
+                #if("" != #(comment.user_img))
                     <img src="#(comment.user_img)" width="40" height="40" alt="">
                 #else
                     <img src="http://vmaig.qiniudn.com/image/tx/tx-default.jpg" width="40" height="40" alt="">
@@ -23,7 +23,7 @@
                     <a href="#">#(comment.username) 评论:</a>
                 </div>
                 <div class="comment-content">
-                    <a href="/article/#(comment.en_title)">
+                    <a href="/article/#(comment.article_en_title)">
                         <!--{% autoescape on%}-->
                         #[[
                         #(comment.text.substring(0, 30))

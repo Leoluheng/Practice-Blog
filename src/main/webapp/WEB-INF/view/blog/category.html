@@ -3,19 +3,18 @@
 <div class="row">
     <div id="vmaig-content" class="col-md-8 col-lg-9">
         <div id="all-post-list" class="well">
-            {% if article_list %}
-            {% with post_list=article_list %}
-            {% for post in post_list %}
-            #include("category_post.html")
-            {% endfor %}
-            {% endwith %}
-            {% endif %}
+            #if(null != #(article_list))
+            #set(post_list = #(article_list))
+            #for(post : post_list)
+                #include("category_post.html")
+            #end
+            #end
         </div>
         
         <!--分页 -->
-        {% if page_obj%}
-        #include("pagination.html")
-        {% endif %}
+        #if(page_obj??)             //////////////////
+            #include("pagination.html")
+        #end
     </div>
     <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
         #include("tags_cloud.html")

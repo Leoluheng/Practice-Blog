@@ -184,10 +184,6 @@ public class UserService {
         return userSheet.get("img");
     }
 
-    public String getImg() {
-        return "";
-    }
-
     public Object get_user() {
         return null;
     }
