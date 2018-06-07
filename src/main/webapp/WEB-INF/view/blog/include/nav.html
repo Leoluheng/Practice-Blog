@@ -1,7 +1,7 @@
-{% url 'forgetpassword-view' as forgetpassword_url %}
-{% url 'user-view' 'changetx' as changetx_url%}
-{% url 'user-view' 'changepassword' as changepassword_url%}
-{% url 'user-view' 'notification' as notification_url%}
+<!--{% url 'forgetpassword-view' as forgetpassword_url %}-->
+<!--{% url 'user-view' 'changetx' as changetx_url%}-->
+<!--{% url 'user-view' 'changepassword' as changepassword_url%}-->
+<!--{% url 'user-view' 'notification' as notification_url%}-->
 
 <header id="vmaig-header" class="navbar navbar-inverse navbar-fixed-top navbar-vmaig">
     <div class="container">
@@ -37,7 +37,7 @@
                 </li>
 
                 #if(null != nav_list)
-                #for(nav: #(nav_list))
+                #for(nav:(nav_list))
                 <li>
                     <a href="#(nav.url)">
                         #(nav.name)
@@ -48,7 +48,7 @@
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                #if(is_active != true)
+                #if(is_active == "false")
                 <li>
                     <a  id="nav-login" data-toggle="modal" data-target="#login-modal"  style="padding-right:0px;cursor:pointer;">
                         登陆
@@ -63,20 +63,20 @@
                 <li class="dropdown">
                     <a href="javascript:;" style="padding:5px;" data-toggle="dropdown">
                         <img src= "#(user_img)" alt="" width="40">
-                        &nbsp;#(user.username)
-                        <span class="badge" style="background-color: #D94600;">#(user.notification_count)</span>
+                        &nbsp;#(username)
+                        <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
                     </a>
                     <ul class="dropdown-menu navbar-right">
-                        <li><a href="/user/changetx">
+                        <li><a href="changetx">
                             <span class="glyphicon glyphicon-user"></span>
                             更改头像</a></li>
-                        <li><a href="/user/changepassword">
+                        <li><a href="changepassword">
                             <span class="glyphicon glyphicon-lock"></span>
                             更改密码</a></li>
-                        <li><a href="/user/notification">
+                        <li><a href="notification">
                             <span class="glyphicon glyphicon-envelope"></span>
                             消息
-                            <span class="badge" style="background-color: #D94600;">#(user.notification_count)</span>
+                            <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
                         </a></li>
                         <li><a id="logout" href="javascript:;">
                             <span class="glyphicon glyphicon-log-out"></span>
@@ -126,7 +126,7 @@
                     <button id="login-button" type="submit" class="btn btn-primary">
                         登陆
                     </button>
-                    <div id="forgetpassword"><a href="{{forgetpassword_url}}">忘记密码?&nbsp&nbsp</a></div>
+                    <div id="forgetpassword"><a href="/forgetpassword/">忘记密码?&nbsp&nbsp</a></div>
                 </form>
             </div>
         </div><!-- /.modal-content -->
@@ -202,7 +202,7 @@
             },
             success:function(data,textStatus){
                 var errors = data["errors"];
-                if(errors.length==0){
+                if(errors == undefined || errors.length==0){
                     location.reload();
                 }
                 else{
@@ -270,7 +270,7 @@
     $("#logout").click(function(){
         $.ajax({
             type:"POST",
-            url:"/usercontrol/logout",
+            url:"/user/dologout",
             beforeSend:function(xhr){
                 xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
             },

@@ -18,7 +18,7 @@
             <h4>头像预览</h4>
             <div id="preview-pane">
                 <div class="preview-container" style="width:100px;height:100px;overflow:hidden;">
-                    <img  src="{{user.img}}" alt="">
+                    <img  src="#(tx)" alt="">
                 </div>
             </div>
             大头像 100x100
@@ -101,7 +101,7 @@
 
         fd.append('file',blob);
         $.ajax({
-            url:"/usercontrol/changetx",
+            url:"/user/dochangetx",
             type:"POST",
             data:{"tx":canvas.toDataURL().split(',')[1]},
             beforeSend:function(xhr){

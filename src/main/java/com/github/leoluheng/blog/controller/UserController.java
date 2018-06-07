@@ -9,6 +9,7 @@ import com.jfinal.upload.UploadFile;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 
 public class UserController extends Controller {
@@ -26,35 +27,38 @@ public class UserController extends Controller {
 
     // public methods
     public void login() {
-        render("user.html");
+        render("blog/login.html");
     }
 
     public void dologin() {
         String username, password;
-        username = getPara("vmaig-auth-login-username");
-        password = getPara("vmaig-auth-login-password");
+        username = getPara("username");
+        password = getPara("password");
 
         Boolean is_correct = userManager.verifyLogin(username, password);
         if (is_correct) {
             setSessionAttr("username", username);
-            setSessionAttr("is_active", true);
+            setSessionAttr("is_active", "true");
             String tx = userManager.getTx(username);
             setSessionAttr("tx", tx);
             //More to add if needed
-
+            setAttr("user_img", tx);
+            setAttr("username", username);
             redirect("/");
         }
     }
 
     public void dologout() {
-        Boolean is_active = getSessionAttr("is_active");
+        String status = getSessionAttr("is_active");
+        Boolean is_active = Boolean.parseBoolean(status);
         if (!is_active) {
             return;
         } else {
             removeSessionAttr("username");
             removeSessionAttr("is_active");
             removeSessionAttr("tx");
-            redirect("");
+            removeAttr("user");
+            redirect("/");
         }
     }
 
@@ -93,20 +97,20 @@ public class UserController extends Controller {
     }
 
     public void changepassword(){
-        setAttr("user", userManager.get_user());
-        redirect("/view/blog/user_changepassword.html");
+        render("/WEB-INF/view/blog/user_changepassword.html");
     }
 
-    public void dochangePassword() {
-        String username, oldPassword, newPassword, newPassword1;
-        Boolean is_active = getSessionAttr("is_active");
+    public void doChangePassword() {
+        String username, oldPassword, newPassword, newPassword1, status;
+        status = getSessionAttr("is_active");
+        Boolean is_active = Boolean.parseBoolean(status);
         if (!is_active) {
             return;
         }
         username = getSessionAttr("username");
-        oldPassword = getPara("old-password");
-        newPassword = getPara("new-password-1");
-        newPassword1 = getPara("new-password-2");
+        oldPassword = getPara("old_password");
+        newPassword = getPara("new_password1");
+        newPassword1 = getPara("new_password2");
         if (!newPassword.equals(newPassword1)) {
             setAttr("ErrorMessage", "mismatch");
             return;
@@ -115,6 +119,10 @@ public class UserController extends Controller {
         if (!userManager.changePass(id, oldPassword, newPassword)) {
             setAttr("ErrorMessage", "wrong password");
         }
+        removeSessionAttr("username");
+        setSessionAttr("is_active", "false");
+        redirect("/login");
+
     }
 
     public void forgetPassword(){
@@ -181,23 +189,33 @@ public class UserController extends Controller {
     }
 
     public void changetx(){
-        setAttr("user", userManager.get_user());
-        redirect("/view/blog/user_changetx.html");
+        String username = getSessionAttr("username");
+        setAttr("tx", userManager.getTx(username));
+        render("blog/user_changetx.html");
+        dochangetx();
     }
     public void dochangetx(){
-        UploadFile newTx = getFile();
+        UploadFile newTx = getFile(); ////////////////EEEEERRRRRROOOOOORRRRR!!!!!!!!!!!!!!!
         String filename = newTx.getFileName();
-        String txhref = "src/main/webapps/upload" + filename;
-        userManager.saveTx(getSessionAttr("username").toString(),txhref);
-        setSessionAttr("tx", txhref);
+//        String txhref = "src/main/webapps/upload" + filename;
+        String txPath = newTx.getUploadPath();
+        userManager.saveTx(getSessionAttr("username").toString(),txPath);
+        setSessionAttr("tx", txPath);
     }
 
     public void notification(){
-        setAttr("user", userManager.get_user());
-        redirect("/view/blog/user_notification.html");
+        String username = getSessionAttr("username");
+        //////get_notification()
+//        setAttr("")
+        setAttr("notification_list", getNotification(username));
+        render("/WEB-INF/view/blog/user_notification.html");
     }
 
-    public void getNotification(){
+    public Map<Integer, Map<String, Object>> getNotification(String username){
+        return userManager.get_notification_list(username);
+    }
+
+    public void getNotificationContent(){
 
     }
 

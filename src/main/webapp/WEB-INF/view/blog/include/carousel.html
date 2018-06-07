@@ -1,6 +1,6 @@
 <div id="myCarousel" class="carousel slide clearfix" >
     <ol class="carousel-indicators">
-        #for(carousel_page: #(carousel_page_list))
+        #for(carousel_page: (carousel_page_list))
         #if(forloop.first)
         <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
         #else
@@ -10,7 +10,7 @@
     </ol>
     <!-- 轮播（Carousel）项目 -->
     <div class="carousel-inner">
-        #for(carousel_page: #(carousel_page_list))
+        #for(carousel_page: (carousel_page_list))
         #if(forloop.first)
         <div class="item active">
             <a href="/article/#(carousel_page.article_en_title)">

@@ -17,7 +17,7 @@ public class Config extends JFinalConfig {
         PropKit.use("application.properties");
         this.loadPropertyFile("application.properties");
         //Config for tx uploaded
-        me.setBaseUploadPath("src/main/webapps/upload");
+        me.setBaseUploadPath("upload");
 
     }
 
@@ -32,7 +32,7 @@ public class Config extends JFinalConfig {
 
     public void configEngine(Engine me) {
         me.addSharedFunction("/WEB-INF/view/layout/base.html");
-        me.setBaseTemplatePath(PathKit.getWebRootPath());
+//        me.setBaseTemplatePath(PathKit.getWebRootPath());
         me.addSharedMethod(new java.lang.String());
     }
 
@@ -52,10 +52,14 @@ public class Config extends JFinalConfig {
         me.add(dp);
         ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
         me.add(arp);
-        arp.addMapping("vmaig_auth_vmaiguser", UserAdder.class);
-        arp.addMapping("blog_article", ContentAdder.class);
         arp.addMapping("blog_category", CategoryAdder.class);
+        arp.addMapping("blog_column", ColumnAdder.class);
         arp.addMapping("vmaig_comments_comment", CommentAdder.class);
+        arp.addMapping("blog_article", ContentAdder.class);
+        arp.addMapping("vmaig_system_link", LinkAdder.class);
+        arp.addMapping("blog_nav", NavAdder.class);
         arp.addMapping("blog_news", NewsAdder.class);
+        arp.addMapping("vmaig_system_notification", NotificationAdder.class);
+        arp.addMapping("vmaig_auth_vmaiguser", UserAdder.class);
     }
 }

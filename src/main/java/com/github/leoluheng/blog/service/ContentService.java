@@ -26,6 +26,58 @@ public class ContentService {
         }
         return carousel_page_list;
     }
+    public Map<Integer, Map<String, Object>> search_article_list(String keyword){
+        Map<Integer, Map<String, Object>> result_list = new HashMap<Integer,Map<String, Object>>();
+        List<ContentAdder> resultSheet = ContentAdder.dao.find("select article.en_title as en_title, article.title as title, " +
+                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
+                " article.view_times as view_times, category.name as categoryName, article.id as article_id " +
+                "from `blog_article` article, `blog_category` category where category.id = article.category_id AND article.content like '%?%'", keyword);
+        ContentAdder result;
+
+        CommentService commentManager = new CommentService();
+
+        for(int i = 0; i < resultSheet.size(); i++){
+            result = resultSheet.get(i);
+            Map<String, Object> map = new HashMap<String, Object>();
+
+
+            map.put("en_title", result.get("en_title"));
+            map.put("categoryName", tagMap(result));
+            map.put("title", result.get("title"));
+            map.put("get_tags", tagMap(result));
+            map.put("summary", result.get("summary"));
+            map.put("pub_time", result.get("pub_time"));
+            int article_id = result.get("article_id");
+            map.put("comment_num", commentManager.get_Comments_Num(article_id));
+            map.put("view_times", result.get("view_times"));
+            map.put("img", result.get("img"));
+
+            map.put("page_obj", get_page_obj(i, resultSheet.size()));
+            result_list.put(i,map);
+        }
+        return result_list;
+    }
+    public Map<String, Object> get_page_obj(int i, int n){
+        Map<String, Object> page_obj = new HashMap<String, Object>();
+        int pageNum = 2;
+        if(1 != i && 1 == i%7){
+            pageNum++;
+            page_obj.put("has_previous", true);
+            page_obj.put("number", pageNum);
+            page_obj.put("previous_page_number", pageNum - 1);
+            if((n - i - 1) > 8) {
+                page_obj.put("has_next", true);
+                page_obj.put("next_page_number", pageNum + 1);
+            }else{
+                page_obj.put("has_next", false);
+            }
+        }else{
+            page_obj.put("has_previous", false);
+            page_obj.put("number", pageNum - 1);
+            page_obj.put("has_next", false);
+        }
+        return page_obj;
+    }
 
     public Map<Integer,Map<String, Object>> get_article_list(String selector) {
         List<String> categories = new ArrayList<String>();
@@ -40,7 +92,7 @@ public class ContentService {
         Map<String, String> sqlCommands = new HashMap<String, String>();
         sqlCommands.put("index", "select * from blog_article order by blog_article.pub_time DESC");
         sqlCommands.put("category", "select article.en_title as en_title, article.title as title, " +
-                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time," +
+                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
                 " article.view_times as view_times, category.name as categoryName, article.id as article_id " +
                 "from `blog_article` article, `blog_category` category where category.name = ? AND category.id = article.category_id");
         sqlCommands.put("all","select * from blog_article");
@@ -49,7 +101,9 @@ public class ContentService {
         String category = "";
         if(categories.contains(selector)){
             category = selector;
+            selector = "category";
         }
+
         sqlCommand = sqlCommands.get(selector);
         List<ContentAdder> contentSheet;
 
@@ -68,8 +122,6 @@ public class ContentService {
             ContentAdder article = contentSheet.get(i);
 
             Map<String, Object> map = new HashMap<String, Object>();
-            Map<String, Object> page_obj = new HashMap<String, Object>();
-            int pageNum = 2;
 
             map.put("en_title", article.get("en_title"));
             map.put("categoryName", tagMap(article));
@@ -82,27 +134,10 @@ public class ContentService {
             map.put("view_times", article.get("view_times"));
             map.put("img", article.get("img"));
 
-            if(1 != i && 1 == i%7){
-                pageNum++;
-                page_obj.put("has_previous", true);
-                page_obj.put("number", pageNum);
-                page_obj.put("previous_page_number", pageNum - 1);
-                if((contentSheet.size() - i - 1) > 8) {
-                    page_obj.put("has_next", true);
-                    page_obj.put("next_page_number", pageNum + 1);
-                }else{
-                    page_obj.put("has_next", false);
-                }
-            }else{
-                page_obj.put("has_previous", false);
-                page_obj.put("number", pageNum - 1);
-                page_obj.put("has_next", false);
-            }
-            map.put("page_obj", page_obj);
+            map.put("page_obj", get_page_obj(i, contentSheet.size()));
             article_list.put(i,map);
         }
         return article_list;
-
     }
 
 

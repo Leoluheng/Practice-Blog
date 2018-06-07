@@ -10,9 +10,15 @@ public class MyInterceptor implements Interceptor {
     public void intercept(Invocation me) {
         String action = me.getActionKey();
         Controller ctrl = me.getController();
-//        Object is_Signin = ctrl.getSessionAttr("user");
         System.out.println(String.format("interceptor path: %s", action));
         ctrl.setAttr("website_title", PropKit.get("website_title"));
+
+
+        String is_active = ctrl.getSessionAttr("is_active");
+        if(null == is_active) {
+            ctrl.setSessionAttr("is_active", "false");
+        }
         me.invoke();
+
     }
 }

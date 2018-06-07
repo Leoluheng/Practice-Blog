@@ -5,7 +5,7 @@
         <div id="all-post-list" class="well">
             #if(null != #(article_list))
             #set(post_list = #(article_list))
-            #for(post : post_list)
+            #for(post : #(post_list))
                 #include("category_post.html")
             #end
             #end

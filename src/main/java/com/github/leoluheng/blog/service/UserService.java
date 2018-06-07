@@ -1,5 +1,6 @@
 package com.github.leoluheng.blog.service;
 
+import com.github.leoluheng.blog.entity.NotificationAdder;
 import com.github.leoluheng.blog.entity.UserAdder;
 import com.jfinal.kit.PropKit;
 
@@ -11,10 +12,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 public class UserService {
 
@@ -184,7 +182,30 @@ public class UserService {
         return userSheet.get("img");
     }
 
-    public Object get_user() {
-        return null;
+    public int get_user_notification_num(String username) {
+        int to_user_id = getId(username);
+        UserAdder userSheet = UserAdder.dao.findFirst("select count(id) as notification_num from vmaig_system_notification where is_read = 0 AND" +
+                " to_user_id = ?", to_user_id);
+        return Integer.parseInt(userSheet.get("notification_num").toString());
+
+//        UserAdder.class.getMethods()[0].invoke(userSheet);
     }
+
+    public Map<Integer, Map<String, Object>> get_notification_list(String username){
+        Map<Integer, Map<String, Object>> notification_list = new HashMap<Integer, Map<String, Object>>();
+        List<NotificationAdder> notificationSheet = NotificationAdder.dao.find("select note.url as url, note.id as id, note.title as title, " +
+                "note.is_read as is_read from `vmaig_system_notification` as note, `vmaig_auth_vmaiguser` as user where note.to_user_id = user.id AND user.username = ?", username);
+        NotificationAdder notification;
+        for(int i = 0; i < notificationSheet.size(); i++){
+            notification = notificationSheet.get(i);
+            Map<String, Object>map = new HashMap<String, Object>();
+            map.put("url", notification.get("url"));
+            map.put("id", notification.get("id"));
+            map.put("title", notification.get("title"));
+            map.put("is_read", notification.get("is_read"));
+            notification_list.put(i,map);
+        }
+        return notification_list;
+    }
+
 }

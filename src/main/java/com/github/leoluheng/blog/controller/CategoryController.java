@@ -1,13 +1,15 @@
 package com.github.leoluheng.blog.controller;
 
+import com.github.leoluheng.blog.service.ContentService;
 import com.jfinal.core.Controller;
 
 public class CategoryController extends Controller {
 
+    ContentService contentManager = new ContentService();
     public void index(String param){
-//        render("category.html");
+        setAttr("article_list",contentManager.get_article_list(param));
+        render("category.html");
 
-        setAttr("","");
     }
 
 }

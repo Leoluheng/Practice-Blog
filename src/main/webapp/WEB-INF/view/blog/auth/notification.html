@@ -1,19 +1,19 @@
 <div id="notification" class="well clearfix">
     <h2 class="underline">消息</h2>
     <div class="list-group">
-        #for(notification : notifications)
-        <a href="{% if notification.url %}{{notification.url}}{% else %}#{% endif %}"
+        #for(notification : (notification_list))
+        <a href="#if('' != notification.url)(notification.url)#else#end"
            class="list-group-item"
-           value="{{notification.id}}"
+           value="#(notification.id)"
            style="border-top-left-radius: 0px;border-top-right-radius: 0px;">
-            {{notification.title}}
-            {% if notification.is_read%}
+            #(notification.title)
+            #if(1 == notification.is_read)
             <span class="label label-info pull-right">已读</span>
-            {% else %}
+            #else
             <span class="label label-warning pull-right">未读</span>
-            {% endif %}
+            #end
         </a>
-        {% endfor %}
+        #end
     </div>
 </div>
 
@@ -22,7 +22,7 @@
     $('#notification .list-group-item').click(function () {
         $.ajax({
             type: "POST",
-            url: "/usercontrol/notification",
+            url: "/user/get_notification_content",
             data: {"notification_id": $(this).attr("value")},
             dataType: 'json',
             beforeSend: function (xhr) {

@@ -12,7 +12,7 @@
 <div class="row">
     <div class="col-md-2">
         <a class="list-group-item">
-            <img src="{{user.img}}" alt="" width="40">
+            <img src="#(user.img)" alt="" width="40">
             &nbsp;{{user.username}} 
         </a>
         <a href="/user/changetx"class="list-group-item active">
@@ -38,7 +38,7 @@
 
     </div>
     <div class="col-md-10">
-        #include("changetx.html")
+        #include("auth/changetx.html")
 
     </div>
 </div>
