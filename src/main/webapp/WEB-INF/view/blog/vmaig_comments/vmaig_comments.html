@@ -2,7 +2,7 @@
 <div class="well">
     <div class="vmaig-comment">
         <div class="vmaig-comment-tx">
-            #if("" != #(user_img))
+            #if("" != (user_img))
                 <img src="#(user_img)" width="40"></img>
             #else
                 <img src="http://vmaig.qiniudn.com/image/tx/tx-default.jpg" width="40"></img>
@@ -16,10 +16,10 @@
             </form>
         </div>
         <ul>
-            #for(comment : #(comment_list))
+            #for(comment : (comment_list))
             <li>
             <div class="vmaig-comment-tx">
-                #if("" != #(comment.user_img))
+                #if("" != (comment.user_img))
                     <img src="#(comment.user_img)" width="40"></img>
                 #else
                     <img src="http://vmaig.qiniudn.com/image/tx/tx-default.jpg" width="40"></img>
@@ -27,14 +27,14 @@
             </div>
             <div class="vmaig-comment-content">
                 <a><h1>#(comment.user_username)</h1></a>
-                #if(null != #(comment.parent))
+                #if(null != (comment.parent))
                 <div class="comment-quote">
                     <p>
                         <a>@#(comment.parentUser_username)：</a>
                         <!--{% autoescape on %}-->
-                        #[[
+                        #--#[[--#
                         #(comment.parent_text)
-                        ]]#
+                        #--]]#--#
                         <!--{% endautoescape %}-->
                     </p>
                 </div>
@@ -43,9 +43,9 @@
                 <p>
                     评论：
                     <!--{% autoescape on %}-->
-                    #[[
+                    #--#[[ --#
                     #(comment.text)
-                    ]]#
+                    #--]]#--#
                     <!--{% endautoescape %}-->
                 </p>
                 <p>#(comment.create_time) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <a class='quote' href="#anchor-quote" onclick="return CommentQuote('#(comment.user_username)', "#(comment.comment_id)")>回复</a></p>

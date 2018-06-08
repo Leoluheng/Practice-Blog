@@ -45,7 +45,7 @@
     $('#vmaig-auth-register-form').submit(function(){
         $.ajax({
             type:"POST",
-            url:"/doregister",
+            url:"/user/doRegister",
             data:{"username":$("#vmaig-auth-register-username").val(),"email":$("#vmaig-auth-register-email").val(),
                 "password1":$("#vmaig-auth-register-password1").val(),"password2":$("#vmaig-auth-register-password2").val(),},
             dataType:'json',
@@ -54,10 +54,9 @@
             },
             success:function(data,textStatus){
                 var errors = data["errors"];
-                if(errors.length==0){
+                if(errors.length==0) {
                     location.replace("/");
-                }
-                else{
+                }else{
                     //alert(errors);
                     var html = "<div class=\"alert alert-danger\">"
                     for (var key in errors){
@@ -70,6 +69,8 @@
             },
             error:function(XMLHttpRequest, textStatus, errorThrown){
                 alert(XMLHttpRequest.responseText);
+
+
             }
         })
         return false;

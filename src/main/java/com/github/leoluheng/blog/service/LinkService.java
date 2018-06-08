@@ -8,7 +8,16 @@ import java.util.List;
 import java.util.Map;
 
 public class LinkService {
+    private static LinkService instance;
 
+    private LinkService(){}
+
+    public synchronized static LinkService getInstance(){
+        if(instance == null){
+            return new LinkService();
+        }
+        return instance;
+    }
     public Map<Integer, Map<String, Object>> get_links() {
         Map<Integer, Map<String, Object>> link_list = new HashMap<Integer, Map<String, Object>>();
         String[] color = new String[]{"primary", "success", "info", "warning", "danger"};

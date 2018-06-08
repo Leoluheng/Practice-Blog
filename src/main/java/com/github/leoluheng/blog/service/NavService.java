@@ -7,6 +7,17 @@ import java.util.List;
 import java.util.Map;
 
 public class NavService {
+    private static NavService instance;
+
+    private NavService(){}
+
+    public synchronized static NavService getInstance(){
+        if(instance == null){
+            return new NavService();
+        }
+        return instance;
+    }
+
     public Map<Integer, Map<String, Object>> get_nav_list() {
         Map<Integer, Map<String, Object>> nav_list = new HashMap<Integer, Map<String, Object>>();
         List<NavAdder> navSheet = NavAdder.dao.find("select nav.name as name, nav.url as url from `blog_nav` nav");

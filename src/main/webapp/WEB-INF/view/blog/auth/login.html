@@ -21,7 +21,7 @@
                     <input id="vmaig-auth-login-password" type="password" class="form-control">
                 </div>
             </div>
-            <div id="vmaig-auth-forgetpassword"><a href="/user/forgetpassword">忘记密码?</a></div>
+            <div id="vmaig-auth-forgetpassword"><a href="/user/forgetPassword">忘记密码?</a></div>
             <button id="vmaig-auth-login-button" type="submit" class="btn btn-vmaig-auth pull-left">登录</button>
             <a href="/user/register" type="button" class="btn btn-vmaig-auth pull-right">注册</a>
         </form>
@@ -33,14 +33,14 @@
     $('#vmaig-auth-login-form').submit(function(){
         $.ajax({
             type:"POST",
-            url:"/user/dologin",
+            url:"/user/doLogin",
             data:{"username":$("#vmaig-auth-login-username").val(),"password":$("#vmaig-auth-login-password").val()},
             beforeSend:function(xhr){
                 xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
             },
             success:function(data,textStatus){
                 var errors = data["errors"];
-                if(errors.length==0){
+                if(errors == null || errors.length==0){
                     location.replace("/");
                 }
                 else{

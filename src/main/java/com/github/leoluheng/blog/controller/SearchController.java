@@ -6,14 +6,16 @@ import com.jfinal.core.Controller;
 
 public class SearchController extends Controller {
 
-    ContentService contentManager = new ContentService();
-    CommentService commentManager = new CommentService();
+    ContentService contentManager = ContentService.getInstance();
+    CommentService commentManager = CommentService.getInstance();
 
-    public void index(String param){
+    public void index(){
+        String param = getPara("s");
+
         setAttr("article_list", contentManager.search_article_list(param));
 
         setAttr("hot_article_list", contentManager.get_hot_article_list());
         setAttr("latest_comment_list", commentManager.get_latest_comments());
-        render("all_post.html");
+        render("/WEB-INF/view/blog/search.html");
     }
 }

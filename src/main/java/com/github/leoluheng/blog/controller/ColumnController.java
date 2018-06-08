@@ -7,9 +7,9 @@ import com.jfinal.core.Controller;
 
 public class ColumnController extends Controller {
 
-    ColumnService columnManager = new ColumnService();
-    ContentService contentManager = new ContentService();
-    CommentService commentManager = new CommentService();
+    ColumnService columnManager = ColumnService.getInstance();
+    ContentService contentManager = ContentService.getInstance();
+    CommentService commentManager = CommentService.getInstance();
 
     public void index(String param){
         setAttr("column_summary", columnManager.get_summary(param));

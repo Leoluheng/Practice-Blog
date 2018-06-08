@@ -2,9 +2,9 @@ package com.github.leoluheng.blog.config;
 
 import com.github.leoluheng.blog.controller.*;
 import com.github.leoluheng.blog.entity.*;
-import com.github.leoluheng.blog.interceptor.MyInterceptor;
+import com.github.leoluheng.blog.interceptor.AuthInterceptor;
+import com.github.leoluheng.blog.interceptor.NavInterceptor;
 import com.jfinal.config.*;
-import com.jfinal.kit.PathKit;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
@@ -22,7 +22,8 @@ public class Config extends JFinalConfig {
     }
 
     public void configInterceptor(Interceptors me) {
-        me.add(new MyInterceptor());
+        me.add(new AuthInterceptor());
+        me.add(new NavInterceptor());
     }
 
 
@@ -31,7 +32,8 @@ public class Config extends JFinalConfig {
     }
 
     public void configEngine(Engine me) {
-        me.addSharedFunction("/WEB-INF/view/layout/base.html");
+//        me.setBaseTemplatePath("");
+//        me.addSharedFunction("/WEB-INF/view/layout/base.html");
 //        me.setBaseTemplatePath(PathKit.getWebRootPath());
         me.addSharedMethod(new java.lang.String());
     }
@@ -45,6 +47,7 @@ public class Config extends JFinalConfig {
         me.add("/category", CategoryController.class);
         me.add("/column", ColumnController.class);
         me.add("/search", SearchController.class);
+        me.add("/news", NewsController.class);
     }
 
     public void configPlugin(Plugins me) {

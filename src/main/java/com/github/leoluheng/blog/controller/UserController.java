@@ -4,17 +4,18 @@ import com.github.leoluheng.blog.entity.UserAdder;
 import com.github.leoluheng.blog.service.MD5Util;
 import com.github.leoluheng.blog.service.UserService;
 import com.jfinal.core.Controller;
+import com.jfinal.kit.PathKit;
 import com.jfinal.upload.UploadFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 
 public class UserController extends Controller {
     // members
-    UserService userManager = new UserService();
+    UserService userManager = UserService.getInstance();
 
     // static block
     static {
@@ -27,28 +28,35 @@ public class UserController extends Controller {
 
     // public methods
     public void login() {
-        render("blog/login.html");
+        render("/WEB-INF/view/blog/login.html");
     }
 
-    public void dologin() {
+    public void doLogin() {
         String username, password;
         username = getPara("username");
         password = getPara("password");
-
-        Boolean is_correct = userManager.verifyLogin(username, password);
-        if (is_correct) {
+        Map<String, List<String>> response = new HashMap<String, List<String>>();
+        List<String> errors = new ArrayList<String>();
+        int is_correct = userManager.verifyLogin(username, password);
+        if (is_correct == 0) {
             setSessionAttr("username", username);
             setSessionAttr("is_active", "true");
             String tx = userManager.getTx(username);
-            setSessionAttr("tx", tx);
+//            setSessionAttr("tx", tx);
             //More to add if needed
             setAttr("user_img", tx);
             setAttr("username", username);
-            redirect("/");
+//            redirect("/");
+        }else if(is_correct == 1){
+            errors.add("Incorrect password");
+        }else{
+            errors.add("Incorrect username");
         }
+        response.put("errors",errors);
+        renderJson(response);
     }
 
-    public void dologout() {
+    public void doLogout() {
         String status = getSessionAttr("is_active");
         Boolean is_active = Boolean.parseBoolean(status);
         if (!is_active) {
@@ -56,17 +64,16 @@ public class UserController extends Controller {
         } else {
             removeSessionAttr("username");
             removeSessionAttr("is_active");
-            removeSessionAttr("tx");
-            removeAttr("user");
-            redirect("/");
+//            removeSessionAttr("tx");
+//            removeAttr("user");
         }
     }
 
     public void register(){
-        redirect("/auth/register.html");
+        render("/WEB-INF/view/blog/register.html");
     }
 
-    public void doregister() {
+    public void doRegister() {
         String username, password1, password2, email;
         username = getPara("username");
         password1 = getPara("password1");
@@ -79,20 +86,35 @@ public class UserController extends Controller {
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date_now = sf.format(date);
         //////////////////////////////////
-//        String result = userManager.doreg(username, password, first_name, last_name, email, date_now);
+//        String result = userManager.doReg(username, password, first_name, last_name, email, date_now);
+        Map<String, List<String>> response = new HashMap<String, List<String>>();
+        List<String> errors = new ArrayList<String>();
 
-
-        String result = userManager.doreg(username, password1, email, date_now);
-        if (result.equalsIgnoreCase("username")) {
-            setAttr("RepeatedUsername", "username already used");
+        if(password1.equals("") || password2.equals("") || username.equals("") || email.equals("")){
+            errors.add("All fields need to be filled");
+            response.put("errors", errors);
+            renderJson(response);
             return;
+        }
+        String result = userManager.doReg(username, password1, email, date_now);
+
+        if (result.equalsIgnoreCase("username")) {
+            errors.add("Repeated Username");
+            response.put("errors", errors);
+            renderJson(response);
         } else if (result.equalsIgnoreCase("email")) {
-            setAttr("RepeatedEmail", "email already registered");
+            errors.add("Repeated Email");
+            response.put("errors", errors);
+            renderJson(response);
         } else {
             setSessionAttr("username", username);
-            setSessionAttr("is_active", true);
+            setSessionAttr("is_active", "true");
             String tx = userManager.getTx(username);
-            setSessionAttr("tx", tx);
+//            setSessionAttr("tx", tx);
+            setAttr("user_img", tx);
+
+            response.put("errors", errors);
+            renderJson(response);
         }
     }
 
@@ -105,33 +127,50 @@ public class UserController extends Controller {
         status = getSessionAttr("is_active");
         Boolean is_active = Boolean.parseBoolean(status);
         if (!is_active) {
+
             return;
         }
         username = getSessionAttr("username");
         oldPassword = getPara("old_password");
         newPassword = getPara("new_password1");
         newPassword1 = getPara("new_password2");
-        if (!newPassword.equals(newPassword1)) {
-            setAttr("ErrorMessage", "mismatch");
+
+        Map<String, List<String>> response = new HashMap<String, List<String>>();
+        List<String> errors = new ArrayList<String>();
+        if(newPassword.equals("") || newPassword1.equals("")){
+            errors.add("All fields need to be filled");
+            response.put("errors", errors);
+            renderJson(response);
+            return;
+        }else if (!newPassword.equals(newPassword1)) {
+            errors.add("Password mismatch");
+            response.put("errors", errors);
+            renderJson(response);
             return;
         }
         int id = userManager.getId(username);
-        if (!userManager.changePass(id, oldPassword, newPassword)) {
-            setAttr("ErrorMessage", "wrong password");
+
+        if(-1 == id){
+            errors.add("Account Lost. Server is under attack!!! Serious Damage occurred!!");
         }
+        response.put("errors", errors);
+        if (!userManager.changePass(id, oldPassword, newPassword)) {
+            removeSessionAttr("username");
+            setSessionAttr("is_active", "false");
+        }
+        renderJson(response);
         removeSessionAttr("username");
         setSessionAttr("is_active", "false");
-        redirect("/login");
-
+//        redirect("/login");
     }
 
     public void forgetPassword(){
-        redirect("/auth/forgetpassword.html");
+        render("/WEB-INF/view/blog/forgetpassword.html");
     }
     public void fixforgetPassword() throws Exception {
         String username, email;
-        username = getPara("vmaig-auth-forgetpassword-username");
-        email = getPara("vmaig-auth-forgetpassword-email");
+        username = getPara("username");
+        email = getPara("email");
         Boolean result = userManager.verifyUser(username, email);
         if (!result) {
             setAttr("ErrorMessage", "Incorrect username or email");
@@ -189,18 +228,33 @@ public class UserController extends Controller {
     }
 
     public void changetx(){
-        String username = getSessionAttr("username");
-        setAttr("tx", userManager.getTx(username));
-        render("blog/user_changetx.html");
-        dochangetx();
+//        String username = getSessionAttr("username");
+//        setAttr("tx", userManager.getTx(username));
+        render("/WEB-INF/view/blog/user_changetx.html");
     }
     public void dochangetx(){
-        UploadFile newTx = getFile(); ////////////////EEEEERRRRRROOOOOORRRRR!!!!!!!!!!!!!!!
-        String filename = newTx.getFileName();
+//        String path = "";
+//        String uploadDir = File.separator + "upload" + File.separator + "contract" + File.separator;
+//        path = PathKit.getWebRootPath() + uploadDir;
+        String path = getSession().getServletContext().getRealPath("/")
+                + "img/";
+        List<UploadFile> uf = getFiles(path);
+
+        File file = uf.get(0).getFile();
+        String fileName = file.getName();
+        String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+//        UploadFile newTx = getFile("upload", path); ////////////////EEEEERRRRRROOOOOORRRRR!!!!!!!!!!!!!!!
+//        String filename = newTx.getFileName();
 //        String txhref = "src/main/webapps/upload" + filename;
-        String txPath = newTx.getUploadPath();
-        userManager.saveTx(getSessionAttr("username").toString(),txPath);
-        setSessionAttr("tx", txPath);
+        int temp = (int) (Math.random() * 9000 + 1000);
+        fileName = getRequest().getRemoteAddr().replaceAll(":", "")
+//                + dateFormat.format(new Date())
+                + new Integer(temp).toString() + "." + extName;
+        file.renameTo(new File(path + fileName));
+//        String txPath = (UploadFile)file.getUploadPath();
+
+//        userManager.saveTx(getSessionAttr("username").toString(),txPath);
+//        setSessionAttr("tx", txPath);
     }
 
     public void notification(){

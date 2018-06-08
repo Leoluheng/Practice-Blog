@@ -2,14 +2,25 @@ package com.github.leoluheng.blog.service;
 
 import com.github.leoluheng.blog.entity.CommentAdder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CommentService {
 
-    public Map<Integer, Map<String, Object>> get_Comment_List(int article_id) {
-        Map<Integer, Map<String, Object>> comment_list = new HashMap<Integer, Map<String, Object>>();
+    private static CommentService instance;
+
+    private CommentService(){}
+
+    public synchronized static CommentService getInstance(){
+        if(null == instance){
+            return new CommentService();
+        }
+        return instance;
+    }
+    public List<Map<String, Object>> get_Comment_List(int article_id) {
+        List<Map<String, Object>> comment_list = new ArrayList<Map<String, Object>>();
         List<CommentAdder> commentSheet = CommentAdder.dao.find("select user1.img as user_img, user1.username as user_username, " +
                 "comment1.parent_id as parent, comment1.text as text, format(comment1.create_time, 'YYYY-MM-DD HH:II:SS') as create_time, " +
                 "comment1.id as comment_id, user2.username as parentUser_username, comment2.text as parent_text " +
@@ -27,7 +38,7 @@ public class CommentService {
             map.put("comment_id", comment.get("comment_id"));
             map.put("parentUser_username", comment.get("parentUser_username"));
             map.put("parent_text", comment.get("parent_text"));
-            comment_list.put(i, map);
+            comment_list.add(map);
         }
         return comment_list;
     }
@@ -37,8 +48,8 @@ public class CommentService {
         return commentSheet.size();
     }
 
-    public Map<Integer,Map<String, Object>> get_latest_comments() {
-        Map<Integer, Map<String, Object>> latest_comments = new HashMap<Integer, Map<String, Object>>();
+    public List<Map<String, Object>> get_latest_comments() {
+        List<Map<String, Object>> latest_comments = new ArrayList<Map<String, Object>>();
         List<CommentAdder> commentSheet = CommentAdder.dao.find("SELECT `article`.en_title AS article_en_title, `comment`.text AS text,`comment`.user_id AS user_id,`user`.img AS user_img,`user`.username AS username " +
                 "FROM vmaig_comments_comment AS `comment`, vmaig_auth_vmaiguser AS `user`, blog_article AS `article` WHERE `comment`.user_id=`user`.id AND `comment`.article_id = `article`.id");
         for(int i = 0; i < commentSheet.size(); i++){
@@ -51,7 +62,7 @@ public class CommentService {
             map.put("user_img", comment.get("user_img"));
             map.put("username", comment.get("username"));
 
-            latest_comments.put(i,map);
+            latest_comments.add(map);
         }
         return latest_comments;
     }

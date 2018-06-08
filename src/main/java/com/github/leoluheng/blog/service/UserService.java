@@ -3,6 +3,7 @@ package com.github.leoluheng.blog.service;
 import com.github.leoluheng.blog.entity.NotificationAdder;
 import com.github.leoluheng.blog.entity.UserAdder;
 import com.jfinal.kit.PropKit;
+import com.jfinal.kit.StrKit;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -16,19 +17,39 @@ import java.util.*;
 
 public class UserService {
 
-    public boolean verifyLogin(String username, String password) {
+    private static UserService instance;
+
+    private UserService() {
+    }
+
+    public synchronized static UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
+    public int verifyLogin(String username, String password) {
         List<UserAdder> userSheet = UserAdder.dao.find("select username from vmaig_auth_vmaiguser where " +
                 "username = ?  AND  password = ?", username, password);
-        return 0 != userSheet.size();
+        if(userSheet.size() == 0){
+            userSheet = UserAdder.dao.find("select username from vmaig_auth_vmaiguser where " +
+                    "username = ?  ", username);
+            if(userSheet.size() == 0){
+                return 2;
+            }
+            return 1;
+        }
+        return 0;
     }
 
     //Acquiring first_name last_name
-    public String doreg(String username, String password, String first_name, String last_name, String email, String date_joined) {
+    public String doReg(String username, String password, String first_name, String last_name, String email, String date_joined) {
         UserAdder userSheet = UserAdder.dao.findFirst("select username email from vmaig_auth_vmaiguser where " +
                 "username = ?", username);
         if (null != userSheet.get("username")) {
             return "username";
-        }else if(null != userSheet.get("email")){
+        } else if (null != userSheet.get("email")) {
             return "email";
         }
 
@@ -39,11 +60,16 @@ public class UserService {
     }
 
     //No first_name last_name
-    public String doreg(String username, String password, String email, String date_joined) {
+    public String doReg(String username, String password, String email, String date_joined) {
         UserAdder userSheet = UserAdder.dao.findFirst("select username email from vmaig_auth_vmaiguser where " +
-                "username = ?", username);
+                "username = ? OR email = ?", username, email);
         if (null != userSheet) {
-            return "username";
+            userSheet = UserAdder.dao.findFirst("select email from vmaig_auth_vmaiguser where " +
+                    "username = ?", username);
+            if(null != userSheet){
+                return "username";
+            }
+            return "email";
         }
 
         new UserAdder().set("username", username)
@@ -54,21 +80,27 @@ public class UserService {
 
     public int getId(String username) {
         UserAdder userSheet = UserAdder.dao.findFirst("select id from vmaig_auth_vmaiguser where username = ?", username);
+        if(userSheet == null){
+            return -1;
+        }
+
         return userSheet.get("id");
     }
 
     public boolean changePass(int id, String credential, String newPassword) {
         UserAdder userSheet = UserAdder.dao.findById(id);
-        if(!credential.equals(userSheet.get("password"))){
+
+
+        if (userSheet == null || !credential.equals(userSheet.get("password"))) {
             return false;
         }
         return userSheet.set("password", newPassword).update();
     }
 
-    public boolean verifyUser(String username, String email){
+    public boolean verifyUser(String username, String email) {
         UserAdder userSheet = UserAdder.dao.findFirst("select username from vmaig_auth_vmaiguser where username = ? AND" +
-        "email = ?", username, email);
-        if(null != userSheet){
+                "email = ?", username, email);
+        if (null != userSheet) {
             return true;
         }
         return false;
@@ -113,7 +145,7 @@ public class UserService {
     }
 
     private static MimeMessage getMimeMessage(Session session, String senderAddress, String recipientAddress, UserAdder userSheet,
-                                             HttpServletRequest request) throws Exception{
+                                              HttpServletRequest request) throws Exception {
         //创建一封邮件的实例对象
         MimeMessage msg = new MimeMessage(session);
         //设置发件人地址
@@ -124,9 +156,9 @@ public class UserService {
          * MimeMessage.RecipientType.CC：抄送
          * MimeMessage.RecipientType.BCC：密送
          */
-        msg.setRecipient(MimeMessage.RecipientType.TO,new InternetAddress(recipientAddress));
+        msg.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(recipientAddress));
         //设置邮件主题
-        msg.setSubject("邮件主题","UTF-8");
+        msg.setSubject("邮件主题", "UTF-8");
         //设置邮件正文
         //创建文本"节点"
 
@@ -135,7 +167,7 @@ public class UserService {
         MimeBodyPart resetpasswordLink = new MimeBodyPart();
         // 这里添加图片的方式是将整个图片包含到邮件内容中, 实际上也可以以 http 链接的形式添加网络图片
         resetpasswordLink.setContent("请点击以下连接重设账号密码<br/>" +
-                "<a href='" + link +"'>请点击我重设账号密码</a>", "text/html;charset=UTF-8");
+                "<a href='" + link + "'>请点击我重设账号密码</a>", "text/html;charset=UTF-8");
 
         MimeBodyPart words = new MimeBodyPart();
         words.setContent("这是一封给" + recipientAddress + "的重要邮件", "text/html;charset=UTF-8");
@@ -152,9 +184,9 @@ public class UserService {
         return msg;
     }
 
-    private static String creatLink(UserAdder userSheet, HttpServletRequest request){
+    private static String creatLink(UserAdder userSheet, HttpServletRequest request) {
         //生成密钥
-        String secretKey=UUID.randomUUID().toString();
+        String secretKey = UUID.randomUUID().toString();
         //更新数据库内该用户的密钥
         userSheet.set("secretKey", secretKey).update();
 //        //设置过期时间
@@ -172,17 +204,23 @@ public class UserService {
 
     }
 
-    public void saveTx(String username, String txhref){
+    public void saveTx(String username, String txhref) {
         UserAdder userSheet = new UserAdder().dao().findFirst("select username from vmaig_auth_vmaiguser where username = ?", username);
         userSheet.set("img", txhref).update();
     }
 
-    public String getTx(String username){
+    public String getTx(String username) {
         UserAdder userSheet = new UserAdder().dao().findFirst("select img from vmaig_auth_vmaiguser where username = ?", username);
+        if(userSheet == null){
+            return null;
+        }
         return userSheet.get("img");
     }
 
-    public int get_user_notification_num(String username) {
+    public int getUserNotificationNum(String username) {
+        if (StrKit.isBlank(username)) {
+            return 0;
+        }
         int to_user_id = getId(username);
         UserAdder userSheet = UserAdder.dao.findFirst("select count(id) as notification_num from vmaig_system_notification where is_read = 0 AND" +
                 " to_user_id = ?", to_user_id);
@@ -191,19 +229,19 @@ public class UserService {
 //        UserAdder.class.getMethods()[0].invoke(userSheet);
     }
 
-    public Map<Integer, Map<String, Object>> get_notification_list(String username){
+    public Map<Integer, Map<String, Object>> get_notification_list(String username) {
         Map<Integer, Map<String, Object>> notification_list = new HashMap<Integer, Map<String, Object>>();
         List<NotificationAdder> notificationSheet = NotificationAdder.dao.find("select note.url as url, note.id as id, note.title as title, " +
                 "note.is_read as is_read from `vmaig_system_notification` as note, `vmaig_auth_vmaiguser` as user where note.to_user_id = user.id AND user.username = ?", username);
         NotificationAdder notification;
-        for(int i = 0; i < notificationSheet.size(); i++){
+        for (int i = 0; i < notificationSheet.size(); i++) {
             notification = notificationSheet.get(i);
-            Map<String, Object>map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<String, Object>();
             map.put("url", notification.get("url"));
             map.put("id", notification.get("id"));
             map.put("title", notification.get("title"));
             map.put("is_read", notification.get("is_read"));
-            notification_list.put(i,map);
+            notification_list.put(i, map);
         }
         return notification_list;
     }

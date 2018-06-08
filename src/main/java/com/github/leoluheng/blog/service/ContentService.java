@@ -3,15 +3,23 @@ package com.github.leoluheng.blog.service;
 import com.github.leoluheng.blog.entity.CategoryAdder;
 import com.github.leoluheng.blog.entity.ContentAdder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ContentService {
 
-    public Map<Integer, Map<String, Object>> get_carousel_page_list() {
-        Map<Integer, Map<String, Object>> carousel_page_list = new HashMap<Integer, Map<String, Object>>();
+    private static ContentService instance;
+
+    private ContentService(){}
+
+    public synchronized static ContentService getInstance(){
+        if(instance == null){
+            return new ContentService();
+        }
+        return instance;
+    }
+
+    public List<Map<String, Object>> get_carousel_page_list() {
+        List<Map<String, Object>> carousel_page_list = new ArrayList<Map<String, Object>>();
         List<ContentAdder> contentSheet = ContentAdder.dao.find("select article.en_title as article_en_title, carousel.img as img, " +
                 "carousel.title as title, carousel.summary as summary from `blog_article` article, `blog_carousel` carousel where carousel.article_id = article.id");
         ContentAdder content;
@@ -22,29 +30,31 @@ public class ContentService {
             map.put("img", content.get("img"));
             map.put("title", content.get("title"));
             map.put("summary", content.get("summary"));
-            carousel_page_list.put(i,map);
+            carousel_page_list.add(map);
         }
         return carousel_page_list;
     }
-    public Map<Integer, Map<String, Object>> search_article_list(String keyword){
-        Map<Integer, Map<String, Object>> result_list = new HashMap<Integer,Map<String, Object>>();
-        List<ContentAdder> resultSheet = ContentAdder.dao.find("select article.en_title as en_title, article.title as title, " +
+    public List<Map<String, Object>> search_article_list(String keyword){
+        String term = "%";
+        term += keyword + "%";
+        List<Map<String, Object>> result_list = new ArrayList<Map<String, Object>>();
+        List<ContentAdder> resultSheet = ContentAdder.dao.find("select article.en_title as enTitle, article.title as title, " +
                 "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
-                " article.view_times as view_times, category.name as categoryName, article.id as article_id " +
-                "from `blog_article` article, `blog_category` category where category.id = article.category_id AND article.content like '%?%'", keyword);
+                " article.view_times as view_times, category.name as category, article.id as article_id " +
+                "from `blog_article` article, `blog_category` category where category.id = article.category_id AND article.content like ?", term);
         ContentAdder result;
 
-        CommentService commentManager = new CommentService();
+        CommentService commentManager = CommentService.getInstance();
 
         for(int i = 0; i < resultSheet.size(); i++){
             result = resultSheet.get(i);
             Map<String, Object> map = new HashMap<String, Object>();
 
 
-            map.put("en_title", result.get("en_title"));
-            map.put("categoryName", tagMap(result));
+            map.put("enTitle", result.get("enTitle"));
+            map.put("category", result.get("category"));
             map.put("title", result.get("title"));
-            map.put("get_tags", tagMap(result));
+            map.put("get_tags", tagMap(result,"tags"));
             map.put("summary", result.get("summary"));
             map.put("pub_time", result.get("pub_time"));
             int article_id = result.get("article_id");
@@ -53,10 +63,11 @@ public class ContentService {
             map.put("img", result.get("img"));
 
             map.put("page_obj", get_page_obj(i, resultSheet.size()));
-            result_list.put(i,map);
+            result_list.add(map);
         }
         return result_list;
     }
+
     public Map<String, Object> get_page_obj(int i, int n){
         Map<String, Object> page_obj = new HashMap<String, Object>();
         int pageNum = 2;
@@ -79,7 +90,7 @@ public class ContentService {
         return page_obj;
     }
 
-    public Map<Integer,Map<String, Object>> get_article_list(String selector) {
+    public List<Map<String, Object>> get_article_list(String selector) {
         List<String> categories = new ArrayList<String>();
         categories.add("python");
         categories.add("django");
@@ -90,11 +101,14 @@ public class ContentService {
         categories.add("其他");
 
         Map<String, String> sqlCommands = new HashMap<String, String>();
-        sqlCommands.put("index", "select * from blog_article order by blog_article.pub_time DESC");
-        sqlCommands.put("category", "select article.en_title as en_title, article.title as title, " +
+        sqlCommands.put("index", "select article.en_title as enTitle, article.title as title, " +
+                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time, " +
+                "article.view_times as view_times, category.name as category, article.id as id " +
+                "from `blog_article` article, `blog_category` as category order by pub_time DESC");
+        sqlCommands.put("category", "select article.en_title as enTitle, article.title as title, " +
                 "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
-                " article.view_times as view_times, category.name as categoryName, article.id as article_id " +
-                "from `blog_article` article, `blog_category` category where category.name = ? AND category.id = article.category_id");
+                " article.view_times as view_times, category.name as category, article.id as id " +
+                "from `blog_article` article, `blog_category` as category where category.name = ? AND category.id = article.category_id");
         sqlCommands.put("all","select * from blog_article");
 
         String sqlCommand;
@@ -107,7 +121,7 @@ public class ContentService {
         sqlCommand = sqlCommands.get(selector);
         List<ContentAdder> contentSheet;
 
-        CommentService commentManager = new CommentService();
+        CommentService commentManager = CommentService.getInstance();
 
         if(category.equals("")) {
             contentSheet = ContentAdder.dao.find(sqlCommand);
@@ -115,7 +129,7 @@ public class ContentService {
             contentSheet = ContentAdder.dao.find(sqlCommand, category);
         }
 
-        Map<Integer, Map<String, Object>> article_list = new HashMap<Integer,Map<String, Object>>();
+        List<Map<String, Object>> article_list = new ArrayList<Map<String, Object>>();
 
         for(int i = 0; i < contentSheet.size(); i++){
 
@@ -123,19 +137,20 @@ public class ContentService {
 
             Map<String, Object> map = new HashMap<String, Object>();
 
-            map.put("en_title", article.get("en_title"));
-            map.put("categoryName", tagMap(article));
+            map.put("enTitle", article.get("enTitle"));
+            String categoryName = article.get("category");
+            map.put("category", categoryName);
             map.put("title", article.get("title"));
-            map.put("get_tags", tagMap(article));
+            map.put("get_tags", tagMap(article,"tags"));
             map.put("summary", article.get("summary"));
             map.put("pub_time", article.get("pub_time"));
-            int article_id = article.get("article_id");
+            int article_id = article.get("id");
             map.put("comment_num", commentManager.get_Comments_Num(article_id));
             map.put("view_times", article.get("view_times"));
             map.put("img", article.get("img"));
 
             map.put("page_obj", get_page_obj(i, contentSheet.size()));
-            article_list.put(i,map);
+            article_list.add(map);
         }
         return article_list;
     }
@@ -145,12 +160,15 @@ public class ContentService {
         return null;
     }
 
-    public Map<String, String> get_category_list() {
+    public List<Map<String, Object>> get_category_list() {
         List<CategoryAdder> categorySheet = CategoryAdder.dao.find("select name from blog_category");
-        Map<String, String> category_list  = new HashMap<String, String>();
+        List<Map<String, Object>> category_list  = new ArrayList<Map<String, Object>>();
+
         for(int i = 0; i < categorySheet.size(); i++){
+            Map<String, Object> map = new HashMap<String, Object>();
             String str = categorySheet.get(i).get("name");
-            category_list.put("name", str);
+            map.put("name", str);
+            category_list.add(map);
         }
         return category_list;
     }
@@ -162,10 +180,10 @@ public class ContentService {
     public Map<String, Object> get_article(String en_title) {
         Map<String, Object> article = new HashMap<String, Object>();
         ContentAdder contentSheet = ContentAdder.dao.findFirst("select category.name as category, " +
-                "format(article.pub_time,'YYYY-MM-DD') as pub_time, article.view_times as view_times, article.id as article_id " +
+                "format(article.pub_time,'YYYY-MM-DD') as pub_time, article.view_times as view_times, article.id as article_id, " +
                 "user.username as author, article.title as title, article.tags as tags, article.content as content from " +
-                "`blog_article` article, `blog_category` as category, `vmaig_auth_vmaiguser` user where article.en_title = ? AND article.category_id = category.id AND" +
-                "article.author_id = user.id", en_title);
+                "`blog_article` as article, `blog_category` as category, `vmaig_auth_vmaiguser` as user where article.en_title = ? AND article.category_id = category.id AND" +
+                " article.author_id = user.id", en_title);
         article.put("category", contentSheet.get("category"));
         article.put("pub_time", contentSheet.get("pub_time"));
         article.put("view_times", contentSheet.get("view_times"));
@@ -173,29 +191,30 @@ public class ContentService {
         article.put("title", contentSheet.get("title"));
         article.put("tags", contentSheet.get("tags"));
         article.put("content", contentSheet.get("content"));
+        article.put("article_id", contentSheet.get("article_id"));
 
         return article;
     }
 
-    public Map<Integer, Map<String, Object>> get_hot_article_list() {
-        Map<Integer, Map<String, Object>> hot_article_list = new HashMap<Integer, Map<String, Object>>();
-        List<ContentAdder> contentSheet = ContentAdder.dao.find("select article.en_title as en_title, article.title as title, " +
+    public List<Map<String, Object>> get_hot_article_list() {
+        List<Map<String, Object>> hot_article_list = new ArrayList<Map<String, Object>>();
+        List<ContentAdder> contentSheet = ContentAdder.dao.find("select article.en_title as enTitle, article.title as title, " +
                 "article.view_times as view_times from `blog_article` article order by view_times LIMIT 10");
         ContentAdder content;
         for(int i = 0; i < contentSheet.size(); i++){
             content = contentSheet.get(i);
             Map<String, Object>map = new HashMap<String, Object>();
-            map.put("en_title", content.get("en_title"));
+            map.put("enTitle", content.get("enTitle"));
             map.put("title", content.get("title"));
             map.put("view_times", content.get("view_times"));
-            hot_article_list.put(i,map);
+            hot_article_list.add(map);
         }
         return hot_article_list;
     }
 
-    private List<String> tagMap (ContentAdder article){
-        String tags = article.get("tags");
-        return get_tags(tags);
+    private List<String> tagMap (ContentAdder article, String type){
+        String data = article.get(type);
+        return get_tags(data);
     }
 
     public List<String> get_tags(String tags) {
@@ -209,7 +228,7 @@ public class ContentService {
             }
             String tag = tags.substring(0, g);
             tagList.add(tag);
-            tags = tags.substring(g);
+            tags = tags.substring(g+1);
         }
         return tagList;
     }

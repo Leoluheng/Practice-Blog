@@ -13,9 +13,9 @@
         <h1><a href="/article/#(post.en_title)">#(post.title)</a></h1>
 
         <div class="post-tags" style="float:right">
-            #for(tag: #(post.get_tags))
+            #for(tag: (post.get_tags))
             <a href="/tag/#(tag)">
-                <span class="label label-vmaig-#(forloop.counter) btn">#(tag)</span>
+                <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
             </a>
             #end
         </div>
@@ -31,12 +31,18 @@
             </div>
             <div class="col-sm-8">
                 <p>
-                    #[[
+                    #--#[[--#
+                    #if(post.summary.length()>200)
                     #(post.summary.substring(0,200))
-                    ]]#
-                    #if(post.summary.length() > 200)
                     ...
+                    #else
+                    #(post.summary)
                     #end
+
+                    #--]]#--#
+                    #--#if(post.summary.length() > 200)
+                    ...
+                    #end--#
                 </p>
             </div>
         </div>

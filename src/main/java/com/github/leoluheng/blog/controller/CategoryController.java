@@ -5,7 +5,7 @@ import com.jfinal.core.Controller;
 
 public class CategoryController extends Controller {
 
-    ContentService contentManager = new ContentService();
+    ContentService contentManager = ContentService.getInstance();
     public void index(String param){
         setAttr("article_list",contentManager.get_article_list(param));
         render("category.html");

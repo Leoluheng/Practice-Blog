@@ -1,3 +1,4 @@
+#include("../layout/base.html")
 #@base()
 
 #define main()
@@ -12,8 +13,8 @@
 <div class="row">
     <div class="col-md-2">
         <a class="list-group-item">
-            <img src="#(user.img)" alt="" width="40">
-            &nbsp;{{user.username}} 
+            <img src="#(user.img??'/static/img/default.jpg')" alt="" width="40">
+            &nbsp;#(username)
         </a>
         <a href="/user/changetx"class="list-group-item active">
             修改头像
@@ -38,7 +39,7 @@
 
     </div>
     <div class="col-md-10">
-        #include("auth/changetx.html")
+        #include("/auth/changetx.html")
 
     </div>
 </div>

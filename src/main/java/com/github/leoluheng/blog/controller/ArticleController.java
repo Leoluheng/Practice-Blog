@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ArticleController extends Controller {
-    ContentService contentManager = new ContentService();
-    UserService userManager = new UserService();
-    CommentService commentManager = new CommentService();
+    ContentService contentManager = ContentService.getInstance();
+    UserService userManager = UserService.getInstance();
+    CommentService commentManager = CommentService.getInstance();
     // members
     // static block
     static {
@@ -24,8 +24,8 @@ public class ArticleController extends Controller {
 
     // public methods
 
-    public void index(String param) {
-
+    public void index() {
+        String param = getPara("address");
         Map<String, Object> article = contentManager.get_article(param);
         String tags = article.get("tags").toString();
 
@@ -35,12 +35,12 @@ public class ArticleController extends Controller {
 
         String thisUsername = getSessionAttr("username");
         setAttr("user_img", userManager.getTx(thisUsername));
-
-        setAttr("comment_list", commentManager.get_Comment_List(Integer.parseInt(article.get("article_id").toString())));
+        int article_id = Integer.parseInt(article.get("article_id").toString());
+        setAttr("comment_list", commentManager.get_Comment_List(article_id));
 
         setAttr("latest_comment_list", commentManager.get_latest_comments());
         setAttr("hot_article_list", contentManager.get_hot_article_list());
-        render("/blog/article.html");
+        render("/WEB-INF/view/blog/article.html");
     }
 
     // protected methods

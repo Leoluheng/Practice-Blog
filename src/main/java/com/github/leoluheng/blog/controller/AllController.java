@@ -12,11 +12,11 @@ import com.jfinal.kit.PropKit;
  * @author <a href="mailto:heng.lu@uwaterloo.ca">HengLu</a>
  * @since $$Id$$
  */
-//@Before(MyInterceptor.class)
+//@Before(NavInterceptor.class)
 
 public class AllController extends Controller {
 
-    ContentService ContentManager = new ContentService();
+    ContentService ContentManager = ContentService.getInstance();
 
     // members
     // static block
@@ -29,7 +29,7 @@ public class AllController extends Controller {
 
     // public methods
     public void index() {
-        render("/blog/all.html");
+        render("/WEB-INF/view/blog/all.html");
         setAttr("category_list", ContentManager.get_category_list());
         setAttr("article_list", ContentManager.get_article_list("all"));
 

@@ -1,3 +1,4 @@
+#include("../layout/base.html")
 #@base()
 #define main()
 <div class="timeline-content visible-xs">
@@ -11,10 +12,11 @@
 
 </div>
 <ul class="timeline">
-    {% for timeblock in timeblocks%}
+    <!--unknown data source: timeBlocks-->
+    #for(timeblock: timeblocks)
     <li>
         <div class="timeline-time">
-            {% if forloop.first %}
+            #if(forloop.first)
             <div class="pull-right hidden-xs">
                 <span>新闻来源：</span>
                 
@@ -26,14 +28,15 @@
             </div>
             #end
 
-            <span>{{timeblock.0.pub_time|date:"D d M Y"}}</span>
+            <span>#(timeblock.pub_time)</span>
+            <!--|date:"D d M Y"-->
 
         </div>
         <div class="timeline-ico"></div>
         <div class="timeline-content">
 
-            {% for news in timeblock%}
-            <a class="label label-{{news.get_news_from_display}} label-news " onclick="return hs.htmlExpand(this, { objectType: 'iframe' ,minWidth:600,headingText:'{{news.title}}'})" href="{% url 'news-detail-view' news.pk  %}">{{news.title}}</a>
+            #for(news : timeblock)
+            <a class="label label-#(news.get_news_from_display) label-news " onclick="return hs.htmlExpand(this, { objectType: 'iframe' ,minWidth:600,headingText:'#(news.title)'})" href="/news/#(news.pk)">#(news.title)</a>
             #end
 
         </div>
@@ -43,12 +46,12 @@
 
 <div class="timeline-select hidden-xs">
     <ul class="list-group">
-        <li class="list-group-item {% if active == 0 %}active{% endif %}"><a href="/news/?start=0&end=6">最近7天</a></li>
-        <li class="list-group-item {% if active == 1 %}active{% endif %}"><a href="/news/?start=7&end=13">前一周</a></li>
-        <li class="list-group-item {% if active == 2 %}active{% endif %}"><a href="/news/?start=14&end=20">前二周</a></li>
-        <li class="list-group-item {% if active == 3 %}active{% endif %}"><a href="/news/?start=21&end=27">前三周</a></li>
-        <li class="list-group-item {% if active == 4 %}active{% endif %}"><a href="/news/?start=28&end=34">前四周</a></li>
-        <li class="list-group-item {% if active == 5 %}active{% endif %}"><a href="/news/?start=35&end=41">前五周</a></li>
+        <li class="list-group-item #if(active == 0)active#end"><a href="/news/?start=0&end=6">最近7天</a></li>
+        <li class="list-group-item #if(active == 1)active#end"><a href="/news/?start=7&end=13">前一周</a></li>
+        <li class="list-group-item #if(active == 2)active#end"><a href="/news/?start=14&end=20">前二周</a></li>
+        <li class="list-group-item #if(active == 3)active#end"><a href="/news/?start=21&end=27">前三周</a></li>
+        <li class="list-group-item #if(active == 4)active#end"><a href="/news/?start=28&end=34">前四周</a></li>
+        <li class="list-group-item #if(active == 5)active#end"><a href="/news/?start=35&end=41">前五周</a></li>
     </ul>
 </div>
 

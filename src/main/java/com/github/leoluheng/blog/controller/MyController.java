@@ -4,7 +4,7 @@
  */
 package com.github.leoluheng.blog.controller;
 
-import com.github.leoluheng.blog.interceptor.MyInterceptor;
+import com.github.leoluheng.blog.interceptor.NavInterceptor;
 import com.github.leoluheng.blog.service.*;
 import com.jfinal.aop.Before;
 import com.jfinal.core.Controller;
@@ -16,14 +16,13 @@ import com.jfinal.core.Controller;
  * @author <a href="mailto:heng.lu@uwaterloo.ca">HengLu</a>
  * @since $$Id$$
  */
-@Before(MyInterceptor.class)
 public class MyController extends Controller {
     // members
-    ContentService contentManager = new ContentService();
-    LinkService linkManager = new LinkService();
-    NavService navManager = new NavService();
-    UserService userManager = new UserService();
-    CommentService commentManager = new CommentService();
+    ContentService contentManager = ContentService.getInstance();
+    LinkService linkManager = LinkService.getInstance();
+    NavService navManager = NavService.getInstance();
+    UserService userManager = UserService.getInstance();
+    CommentService commentManager = CommentService.getInstance();
     // static block
     static {
 
@@ -38,21 +37,12 @@ public class MyController extends Controller {
         String is_active = getSessionAttr("is_active");
         setAttr("is_active", is_active);
 
-
         setAttr("carousel_page_list", contentManager.get_carousel_page_list());
         setAttr("article_list", contentManager.get_article_list("index"));
         setAttr("page_obj", contentManager.get_page_obj());
         setAttr("links", linkManager.get_links());
         setAttr("hot_article_list", contentManager.get_hot_article_list());
         setAttr("latest_comment_list", commentManager.get_latest_comments());
-
-        String username = getSessionAttr("username");
-
-        if(null != username) {
-            setAttr("user_img", userManager.getTx(username));
-            setAttr("username", username);
-            setAttr("notification_count", userManager.get_user_notification_num(username));
-        }
 
         render("blog/index.html");
     }

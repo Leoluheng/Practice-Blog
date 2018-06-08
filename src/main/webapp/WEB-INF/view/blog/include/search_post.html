@@ -1,47 +1,47 @@
-{% url 'category-detail-view' post.category.name as category_url %}
-{% url 'article-detail-view' post.en_title as article_url %}
 
 <div class="all-post clearfix underline">
     <div class="post-title clearfix">
-        <a href="{{category_url}}">
+        <a href="/category/#(post.category)">
             <div class="pre-cat">
                 <div class="pre-catinner btn">
-                    {{post.category}}
+                    #(post.category)
                 </div>
                 <div class="pre-catarrow">
                 </div>
             </div>
         </a>
-        <h1><a href="{{article_url}}">{{post.title}}</a></h1>
+        <h1><a href="/article/#(post.enTitle)">#(post.title)</a></h1>
 
         <span class="visible-xs-inline-block" style="margin-top:7px;">
-            {{post.pub_time|date:"Y-m-d"}}
+            #(post.pub_time)
         </span>
         <div class="post-tags">
-            {% for tag in post.get_tags%}
-            <a href="{% url 'tag-detail-view' tag %}">
-                <span class="label label-vmaig-{{forloop.counter}} btn">{{tag}}</span>
+            #for(tag : post.get_tags)
+            <a href="/tag/#(tag)">
+                <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
             </a>
-            {% endfor %}
+            #end
         </div>
     </div>
     <div class="post-content ">
         <div class="row">
             <div class="col-sm-4">
                 <figure class="thumbnail">
-                    <a href="{{article_url}}">
-                        <img src="{{post.img}}"  height="400" alt="">
+                    <a href="/article/#(post.enTitle)">
+                        <img src="#(post.img)"  height="400" alt="">
                     </a>
                 </figure>
             </div>
             <div class="col-sm-8">
                 <p>
-                    {% autoescape off%}
-                    {{post.summary|slice:"200" }}
-                    {% endautoescape %}
-                    {% if post.summary|length > 200 %}
+                    <!--{% autoescape off%}-->
+                    #if(post.summary.length() > 200)
+                    #(post.summary.substring(0,200))
                     ...
-                    {% endif %}
+                    <!--{% endautoescape %}-->
+                    #else
+                    #(post.summary)
+                    #end
                 </p>
             </div>
         </div>
@@ -49,15 +49,15 @@
     <div class="post-info hidden-xs">
         <span>
             <span class="glyphicon glyphicon-calendar"></span>
-            {{post.pub_time|date:"Y-m-d" }}
+            #(post.pub_time)
         </span>
         <span>
             <span class="glyphicon glyphicon-comment"></span>
-            {{post.comment_set.all | length}}
+            #(post.commentNum)
         </span>
         <span>
             <span class="glyphicon glyphicon-eye-open"></span>
-            {{post.view_times}}
+            #(post.view_times)
         </span>
     </div>
 </div>
