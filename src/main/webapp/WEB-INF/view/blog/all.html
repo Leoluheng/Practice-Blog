@@ -35,10 +35,7 @@
 
             <div id="all-post-list">
                 #if(null != (article_list))
-                    #setLocal(post_list = article_list)
-                    #for(post: post_list)
-                        #include("include/all_post.html")
-                    #end
+                    #include("include/all_post.html")
                 #end
 
             </div>

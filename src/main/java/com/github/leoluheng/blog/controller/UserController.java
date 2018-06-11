@@ -167,6 +167,7 @@ public class UserController extends Controller {
     public void forgetPassword(){
         render("/WEB-INF/view/blog/forgetpassword.html");
     }
+
     public void fixforgetPassword() throws Exception {
         String username, email;
         username = getPara("username");
@@ -175,7 +176,7 @@ public class UserController extends Controller {
         if (!result) {
             setAttr("ErrorMessage", "Incorrect username or email");
         } else {
-            userManager.resetPassword(email, this.getRequest());
+//            userManager.resetPassword(email, this.getRequest());
         }
 
     }

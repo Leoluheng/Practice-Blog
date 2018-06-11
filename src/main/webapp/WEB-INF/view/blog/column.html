@@ -5,35 +5,32 @@
     <div id="vmaig-content" class="col-md-8 col-lg-9">
         <div class="well">
             <!--{% autoescape off%}-->
-            #[[
+            #--#[[--#
             #(column_summary)
-            ]]#
+            #--]]#--#
             <!--{% endautoescape %}-->
         </div>
 
         <div class="well">
 
             #if(null != article_list)
-            #set(post_list = #(article_list))
-            #for(post : #(post_list))
-                #include("./blog/include/category_post.html")
-            #end
+                #include("include/category_post.html")
             #end
 
         </div>
 
         <!--分页 -->
         #if(page_obj??)
-        #include("./blog/include/pagination.html")
+        #include("include/pagination.html")
         #end
 
     </div>
     <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
 
-        #include("./blog/widgets/tags_cloud.html")
-        #include("./blog/widgets/search.html")
-        #include("./blog/widgets/hotest_posts.html")
-        #include("./vmaig_comments/latest_comments.html")
+        #include("widgets/tags_cloud.html")
+        #include("widgets/search.html")
+        #include("widgets/hotest_posts.html")
+        #include("vmaig_comments/latest_comments.html")
     </div>
 </div>
 

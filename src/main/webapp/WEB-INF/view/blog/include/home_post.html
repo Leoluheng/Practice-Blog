@@ -13,13 +13,13 @@
             </div>
         </a>
         <h1>
-            <a href="/article/#(post.enTitle)">#(post.title)</a>
+            <a href="/article/?address=#(post.enTitle)">#(post.title)</a>
         </h1>
         <div class="post-info">
             <span>
                 <span class="glyphicon glyphicon-calendar"></span>
                 <!--{{post.pub_time|date:"Y-m-d" }}-->
-                #(post.pub_time)
+                #date(post.pub_time, "yyyy-MM-dd")
             </span>
             <span>
                 <span class="glyphicon glyphicon-comment"></span>
@@ -31,8 +31,8 @@
             </span>
             <div class="post-tags">
                 #for(tag : post.get_tags)
-                <a href="/tag/#(tag)" class="#if(tag??)hidden-xs#end">
-                    <span class="label label-vmaig-#(for.index) btn">#(tag)</span>
+                <a href="/tag/?tag=#(tag)" class="#if(tag??)hidden-xs#end">
+                    <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
                 </a>
                 #end
                 <a class="visible-xs-inline-block">
@@ -58,7 +58,7 @@
 
                     <!--.substring(0, 200)-->
                     #--#[[--#
-                    #(post.summary)
+                     #(post.summary)
                     <!--{% endautoescape %}-->
                     #--]]#--#
 

@@ -3,6 +3,7 @@ package com.github.leoluheng.blog.service;
 import com.github.leoluheng.blog.entity.CategoryAdder;
 import com.github.leoluheng.blog.entity.ContentAdder;
 
+import java.awt.geom.Ellipse2D;
 import java.util.*;
 
 public class ContentService {
@@ -39,7 +40,7 @@ public class ContentService {
         term += keyword + "%";
         List<Map<String, Object>> result_list = new ArrayList<Map<String, Object>>();
         List<ContentAdder> resultSheet = ContentAdder.dao.find("select article.en_title as enTitle, article.title as title, " +
-                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
+                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time," +
                 " article.view_times as view_times, category.name as category, article.id as article_id " +
                 "from `blog_article` article, `blog_category` category where category.id = article.category_id AND article.content like ?", term);
         ContentAdder result;
@@ -99,23 +100,36 @@ public class ContentService {
         categories.add("OllyDbg");
         categories.add("汇编");
         categories.add("其他");
+        ////////////////////////////////
+        List<String> tags = new ArrayList<String>();
+        tags.add("其他");
+        tags.add("测试");
+        ////////////////////////////////
 
         Map<String, String> sqlCommands = new HashMap<String, String>();
         sqlCommands.put("index", "select article.en_title as enTitle, article.title as title, " +
-                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time, " +
+                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time, " +
                 "article.view_times as view_times, category.name as category, article.id as id " +
                 "from `blog_article` article, `blog_category` as category order by pub_time DESC");
         sqlCommands.put("category", "select article.en_title as enTitle, article.title as title, " +
-                "article.tags as tags, article.img as img, article.summary as summary, format(article.pub_time, 'YYYY-MM-DD') as pub_time," +
+                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time," +
                 " article.view_times as view_times, category.name as category, article.id as id " +
                 "from `blog_article` article, `blog_category` as category where category.name = ? AND category.id = article.category_id");
-        sqlCommands.put("all","select * from blog_article");
-
+        sqlCommands.put("all","select article.en_title as enTitle, article.title as title, " +
+                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time, " +
+                "article.view_times as view_times, category.name as category, article.id as id  from blog_article article, blog_category category where category.id = article.category_id");
+        sqlCommands.put("tag", "select article.en_title as enTitle, article.title as title, " +
+                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time, " +
+                "article.view_times as view_times, category.name as category, article.id as id  from blog_article article, blog_category category where category.id = article.category_id" +
+                " AND article.tags like ?");
         String sqlCommand;
-        String category = "";
+        String keyword = "";
         if(categories.contains(selector)){
-            category = selector;
+            keyword = selector;
             selector = "category";
+        }else if(tags.contains(selector)){
+            keyword = "%" + selector + "%";
+            selector = "tag";
         }
 
         sqlCommand = sqlCommands.get(selector);
@@ -123,10 +137,10 @@ public class ContentService {
 
         CommentService commentManager = CommentService.getInstance();
 
-        if(category.equals("")) {
+        if(keyword.equals("")) {
             contentSheet = ContentAdder.dao.find(sqlCommand);
         }else{
-            contentSheet = ContentAdder.dao.find(sqlCommand, category);
+            contentSheet = ContentAdder.dao.find(sqlCommand, keyword);
         }
 
         List<Map<String, Object>> article_list = new ArrayList<Map<String, Object>>();
@@ -180,7 +194,7 @@ public class ContentService {
     public Map<String, Object> get_article(String en_title) {
         Map<String, Object> article = new HashMap<String, Object>();
         ContentAdder contentSheet = ContentAdder.dao.findFirst("select category.name as category, " +
-                "format(article.pub_time,'YYYY-MM-DD') as pub_time, article.view_times as view_times, article.id as article_id, " +
+                "article.pub_time as pub_time, article.view_times as view_times, article.id as article_id, " +
                 "user.username as author, article.title as title, article.tags as tags, article.content as content from " +
                 "`blog_article` as article, `blog_category` as category, `vmaig_auth_vmaiguser` as user where article.en_title = ? AND article.category_id = category.id AND" +
                 " article.author_id = user.id", en_title);
