@@ -1,7 +1,3 @@
-<!--{% url 'forgetpassword-view' as forgetpassword_url %}-->
-<!--{% url 'user-view' 'changetx' as changetx_url%}-->
-<!--{% url 'user-view' 'changepassword' as changepassword_url%}-->
-<!--{% url 'user-view' 'notification' as notification_url%}-->
 
 <header id="vmaig-header" class="navbar navbar-inverse navbar-fixed-top navbar-vmaig">
     <div class="container">
@@ -36,11 +32,11 @@
                     </a>
                 </li>
 
-                #if(null != nav_list)
-                #for(nav:(nav_list))
+                #if(null != column_list)
+                #for(nav:(column_list))
                 <li>
-                    <a href="#(nav.url)">
-                        #(nav.name)
+                    <a href="/column/?column=#(nav)">
+                        #(nav)
                     </a>
                 </li>
                 #end

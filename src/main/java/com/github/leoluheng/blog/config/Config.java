@@ -48,6 +48,7 @@ public class Config extends JFinalConfig {
         me.add("/column", ColumnController.class);
         me.add("/search", SearchController.class);
         me.add("/news", NewsController.class);
+        me.add("/tag", TagController.class);
     }
 
     public void configPlugin(Plugins me) {
@@ -57,6 +58,7 @@ public class Config extends JFinalConfig {
         me.add(arp);
         arp.addMapping("blog_category", CategoryAdder.class);
         arp.addMapping("blog_column", ColumnAdder.class);
+        arp.addMapping("blog_column_article", ColumnPostAdder.class);
         arp.addMapping("vmaig_comments_comment", CommentAdder.class);
         arp.addMapping("blog_article", ContentAdder.class);
         arp.addMapping("vmaig_system_link", LinkAdder.class);
