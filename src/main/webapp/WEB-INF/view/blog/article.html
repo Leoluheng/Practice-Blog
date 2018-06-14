@@ -7,7 +7,7 @@
         <div id="article-page" class="well">
             <ol class="breadcrumb">
                 <li><a href="/"><span class="glyphicon glyphicon-home"></span></a></li>
-                <li><a href="#(category_url)">#(article.category)</a></li>
+                <li><a :href="'/category/?category=' + article.category">{{article.category}}</a></li>
                 <li class="hidden-xs"><a><span class="glyphicon glyphicon-calendar"></span> #date(article.pub_time, "yyyy-MM-dd")</a></li>
                 <li><a>
                     <span class="glyphicon glyphicon-eye-open"></span>
@@ -54,6 +54,8 @@
         #include("widgets/hotest_posts.html")
         #include("vmaig_comments/latest_comments.html")
     </div>
+    <script type="text/javascript" src="/static/module/base/base.js"></script>
+    <script type="text/javascript" src="/static/module/article/article.js"></script>
 </div>
 #end
 

@@ -10,36 +10,42 @@
             #if(null != article_list)
             #set(post_list = article_list)
             #for(post : post_list)
-                #include("include/search_post.html")
+            #include("include/search_post.html")
             #end
             #end
-            
+
         </div>
         <!--分页 -->
         <ul class="pager">
             #if(page_obj != null && page_obj.has_previous)
-                <li class="previous">
-                    <a href="?s={{s}}&page=#(page_obj.previous_page_number)">&larr; 上一页</a>
-                </li>
-            #else
-                <li class="previous disabled">
-                    <a>&larr; 上一页</a>
-                </li>
-            #end
-
+            <li class="previous">
+                <a href="?s={{s}}&page=#(page_obj.previous_page_number)">&larr; 上一页</a>
+            </li>
             <li class="page-number">#(page_obj.number)/(paginator.num_pages}}</li>
 
             #if(page_obj != null && page_obj.has_next)
-                <li class="next">
-                    <a href="?s={{s}}&page=#(page_obj.next_page_number)">下一页 &rarr;</a>
-                </li>
+            <li class="next">
+                <a href="?s={{s}}&page=#(page_obj.next_page_number)">下一页 &rarr;</a>
+            </li>
             #else
-                <li class="next disabled">
-                    <a>下一页 &rarr;</a>
-                </li>
+            <li class="previous disabled">
+                <a>&larr; 上一页</a>
+            </li>
+            <li class="next disabled">
+                <a>下一页 &rarr;</a>
+            </li>
             #end
+            #else
+            <li class="previous disabled">
+                <a>&larr; 上一页</a>
+            </li>
+            <li class="next disabled">
+                <a>下一页 &rarr;</a>
+            </li>
+            #end
+
         </ul>
-       
+
 
     </div>
     <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
@@ -48,6 +54,8 @@
         #include("widgets/hotest_posts.html")
         #include("vmaig_comments/latest_comments.html")
     </div>
+    <script type="text/javascript" src="/static/module/base/base.js"></script>
+
 </div>
 
 #end

@@ -1,75 +1,61 @@
-#set(category_url = "")
-#set(article_url = "")
-#for(post: article_list)
-<div class="home-post well clearfix">
-    <div class="post-title underline clearfix">
-        <a href="/category/#(post.category)">
-            <div class="pre-cat">
-                <div class="pre-catinner btn">
-                    #(post.category)
+<div id="homePost">
+    <div v-for="(post, index) in article_list" class="home-post well clearfix">
+        <div class="post-title underline clearfix">
+            <a :href="'/category/' + post.category">
+                <div class="pre-cat">
+                    <div class="pre-catinner btn">
+                        {{post.category}}
+                    </div>
+                    <div class="pre-catarrow">
+                    </div>
                 </div>
-                <div class="pre-catarrow">
-                </div>
-            </div>
-        </a>
-        <h1>
-            <a href="/article/?address=#(post.enTitle)">#(post.title)</a>
-        </h1>
-        <div class="post-info">
+            </a>
+            <h1>
+                <a href="'/article/?address=' + post.enTitle">{{post.title}}</a>
+            </h1>
+            <div class="post-info">
             <span>
                 <span class="glyphicon glyphicon-calendar"></span>
                 <!--{{post.pub_time|date:"Y-m-d" }}-->
-                #date(post.pub_time, "yyyy-MM-dd")
+                #-- #date(post.pub_time, "yyyy-MM-dd") --#
+                {{post.pub_time}}
             </span>
-            <span>
+                <span>
                 <span class="glyphicon glyphicon-comment"></span>
-                #(post.comment_num)
+                {{post.comment_num}}
             </span>
-            <span>
+                <span>
                 <span class="glyphicon glyphicon-eye-open"></span>
-                #(post.view_times)
+                {{post.view_times}}
             </span>
-            <div class="post-tags">
-                #for(tag : post.get_tags)
-                <a href="/tag/?tag=#(tag)" class="#if(tag??)hidden-xs#end">
-                    <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
-                </a>
-                #end
-                <a class="visible-xs-inline-block">
-                    <span class="label label-vmaig-2 btn ">...</span>
-                </a>
-
-            </div>
-
-        </div>
-    </div>
-    <div class="post-content">
-        <div class="row">
-            <div class="col-sm-4">
-                <figure class="thumbnail">
-                    <a href="/article/#(post.enTitle)">
-                        <img src="#(post.img)"  height="300" alt="">
+                <div class="post-tags">
+                    <a v-for="(tag, num) in post.get_tags" :href="'/tag/?tag=' + tag" :class="{ 'hidden-xs' : post.showTag}" >
+                        <span :class="'label label-vmaig-' + num + ' btn'">{{tag}}</span>
                     </a>
-                </figure>
+                    <a class="visible-xs-inline-block">
+                        <span class="label label-vmaig-2 btn ">...</span>
+                    </a>
+
+                </div>
+
             </div>
-            <div class="col-sm-8">
-                <p>
-                    <!--{% autoescape off%}-->
+        </div>
+        <div class="post-content">
+            <div class="row">
+                <div class="col-sm-4">
+                    <figure class="thumbnail">
+                        <a :href="'/article/' + post.enTitle">
+                            <img :src="post.img" height="300" alt="">
+                        </a>
+                    </figure>
+                </div>
+                <div class="col-sm-8">
+                    <p>{{post.summary | trimText}}</p>
+                    <a type="button" class="btn btn-vmaig pull-right hidden-xs"
+                       :href="'/article/?address=' + post.enTitle">阅读全文</a>
 
-                    <!--.substring(0, 200)-->
-                    #--#[[--#
-                     #(post.summary)
-                    <!--{% endautoescape %}-->
-                    #--]]#--#
-
-                    #if(post.summary.length() > 200)
-                    ...
-                    #end
-                </p>
-                <a type="button" class="btn btn-vmaig pull-right hidden-xs"  href="/article/?address=#(post.enTitle)">阅读全文</a>
-
+                </div>
             </div>
         </div>
     </div>
 </div>
-#end

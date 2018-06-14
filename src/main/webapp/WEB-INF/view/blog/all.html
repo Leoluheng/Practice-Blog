@@ -10,12 +10,10 @@
                         全部
                         <input type="radio" name="category" value="all" style="display:none"></input>
                     </label>
-                    #for(category:(category_list))
-                    <label>
-                        #(category.name)
-                        <input type="radio" name="category" value="#(category.name)" style="display:none"></input>
+                    <label v-for="category in category_list">
+                        {{category.name}}
+                        <input type="radio" name="category" :value="category.name" style="display:none"></input>
                     </label>
-                    #end
                 </div>
             </div>
         </div>
@@ -34,9 +32,7 @@
             </div>
 
             <div id="all-post-list">
-                #if(null != (article_list))
-                    #include("include/all_post.html")
-                #end
+                #include("include/all_post.html")
 
             </div>
             <div id="loading" style="height:100px;line-height:100px;text-align:center;display:none;">
@@ -58,6 +54,7 @@
         #include("widgets/hotest_posts.html")
         #include("vmaig_comments/latest_comments.html")
     </div>
+    <script type="text/javascript" src="/static/module/base/base.js"></script>
 </div>
 
 #end
@@ -66,20 +63,61 @@
 <script language="javascript" type="text/javascript">
 
     var start = 0;
-    var end = parseInt({
-    {
-        PAGE_NUM
-    }
-    })
+    // var end = parseInt({
+    // {
+    //     PAGE_NUM
+    // }
+    // })
     ;
+
+    $.ajax({
+        type: "post",
+        url: "/all/doIndex",
+        dataType: "Json",
+        success: function (data, textStatus) {
+            var categoryList = data["category_list"];
+            var articleList = data["article_list"];
+console.log("yset");
+            if (categoryList.length === 0) {
+                $("div .tag-list").children("label").first().nextAll().remove();
+            } else {
+                var vm_category = new Vue({
+                    el: ".tag-list",
+                    data: {
+                        "category_list": categoryList
+                    }
+                });
+            }
+
+            if (articleList === 0) {
+                $("#all-post").empty();
+            } else {
+                var vm_article = new Vue({
+                    el: "#all-post",
+                    data: {
+                        "article_list": articleList
+                    },
+                    filters: {
+                        trimText: function(text){
+                            if(text.length > 200){
+                                return text.substring(0, 200) + "...";
+                            }else{
+                                return text;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
 
     $("input[name='category']").click(function () {
         start = 0;
-        end = parseInt({
-        {
-            PAGE_NUM
-        }
-    })
+    //     end = parseInt({
+    //     {
+    //         PAGE_NUM
+    //     }
+    // })
         ;
         $("input[name='category']").parent().removeClass("active");
         $("#all-post-more")[0].style.display = "none";
@@ -118,11 +156,11 @@
 
     $("input[name='sort']").click(function () {
         start = 0;
-        end = parseInt({
-        {
-            PAGE_NUM
-        }
-    })
+    //     end = parseInt({
+    //     {
+    //         PAGE_NUM
+    //     }
+    // })
         ;
         $("#all-post-more")[0].style.display = "none";
         $("#loading")[0].style.display = "block";

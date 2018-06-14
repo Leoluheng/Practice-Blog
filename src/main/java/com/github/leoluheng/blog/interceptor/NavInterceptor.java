@@ -19,7 +19,7 @@ public class NavInterceptor implements Interceptor {
         System.out.println(String.format("interceptor path: %s", action));
         ctrl.setAttr("website_title", PropKit.get("website_title"));
         ctrl.setAttr("notification_count", userManager.getUserNotificationNum(username));
-        ctrl.setAttr("column_list", columnManager.getColumnList());
+
         String is_active = ctrl.getSessionAttr("is_active");
 
         if(null != username) {

@@ -1,66 +1,51 @@
-#for(post:article_list)
-<div class="all-post clearfix underline">
-    <div class="post-title clearfix">
-        <a href="/category/?category=#(post.category)">
-            <div class="pre-cat">
-                <div class="pre-catinner btn">
-                    #(post.category)
+<div id="all-post">
+    <div v-for="post in article_list" class="all-post clearfix underline">
+        <div class="post-title clearfix">
+            <a :href="'/category/?category=' + post.category">
+                <div class="pre-cat">
+                    <div class="pre-catinner btn">
+                        {{post.category}}
+                    </div>
+                    <div class="pre-catarrow">
+                    </div>
                 </div>
-                <div class="pre-catarrow">
-                </div>
-            </div>
-        </a>
-        <h1><a href="/article/?address=#(post.enTitle)">#(post.title)</a></h1>
-
-        <div class="post-tags" style="float:right">
-            #for(tag: (post.get_tags))
-            <a href="/tag/?tag=#(tag)">
-                <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
             </a>
-            #end
-        </div>
-    </div>
-    <div class="post-content ">
-        <div class="row">
-            <div class="col-sm-4">
-                <figure class="thumbnail">
-                    <a href="/article/#(post.en_title)">
-                        <img src="#(post.img)"  height="400" alt="">
-                    </a>
-                </figure>
-            </div>
-            <div class="col-sm-8">
-                <p>
-                    #--#[[--#
-                    #if(post.summary.length()>200)
-                    #(post.summary.substring(0,200))
-                    ...
-                    #else
-                    #(post.summary)
-                    #end
+            <h1><a :href="'/article/?address=' + post.enTitle">{{post.title}}</a></h1>
 
-                    #--]]#--#
-                    #--#if(post.summary.length() > 200)
-                    ...
-                    #end--#
-                </p>
+            <div class="post-tags" style="float:right">
+                <a v-for="(tag, index) in post.get_tags" :href="'/tag/?tag=' + tag">
+                    <span :class="'label label-vmaig-' + index + 'btn'">{{tag}}</span>
+                </a>
             </div>
         </div>
-    </div>
-    <div class="post-info">
+        <div class="post-content ">
+            <div class="row">
+                <div class="col-sm-4">
+                    <figure class="thumbnail">
+                        <a :href="'/article/?address=' + post.enTitle">
+                            <img :src="post.img" height="400" alt="">
+                        </a>
+                    </figure>
+                </div>
+                <div class="col-sm-8">
+                    <p>{{post.summary | trimText}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="post-info">
         <span>
             <span class="glyphicon glyphicon-calendar"></span>
             <!--{{post.pub_time|date:"Y-m-d" }}-->
-            #date(post.pub_time, "yyyy-MM-dd")
+            {{post.pub_time}}
         </span>
-        <span>
+            <span>
             <span class="glyphicon glyphicon-comment"></span>
-            #(post.comment_num)
+            {{post.commentNum}}
         </span>
-        <span>
+            <span>
             <span class="glyphicon glyphicon-eye-open"></span>
-            #(post.view_times)
+            {{post.view_times}}
         </span>
+        </div>
     </div>
 </div>
-#end

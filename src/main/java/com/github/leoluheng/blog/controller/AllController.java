@@ -6,6 +6,12 @@ package com.github.leoluheng.blog.controller;
 import com.github.leoluheng.blog.service.ContentService;
 import com.jfinal.core.Controller;
 import com.jfinal.kit.PropKit;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 一句简洁的说明
  *
@@ -30,9 +36,18 @@ public class AllController extends Controller {
     // public methods
     public void index() {
         render("/WEB-INF/view/blog/all.html");
-        setAttr("category_list", ContentManager.get_category_list());
-        setAttr("article_list", ContentManager.get_article_list("all"));
+    }
 
+    public void doIndex(){
+        Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
+
+        List<Map<String, Object>> category_list = ContentManager.get_category_list();
+        List<Map<String, Object>> article_list = ContentManager.get_article_list("all");
+
+        response.put("category_list", category_list);
+        response.put("article_list", article_list);
+
+        renderJson(response);
     }
 
     // protected methods

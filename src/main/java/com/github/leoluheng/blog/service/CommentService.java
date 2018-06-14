@@ -1,6 +1,7 @@
 package com.github.leoluheng.blog.service;
 
 import com.github.leoluheng.blog.entity.CommentAdder;
+import com.jfinal.kit.StrKit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,12 +57,16 @@ public class CommentService {
             Map<String, Object> map = new HashMap<String, Object>();
             CommentAdder comment = commentSheet.get(i);
 
-            map.put("en_title", comment.get("article_en_title"));
+            map.put("enTitle", comment.get("article_en_title"));
             map.put("text", comment.get("text"));
             map.put("user_id", comment.get("user_id"));
-            map.put("user_img", comment.get("user_img"));
+            if(comment.get("user_img") == null){
+                map.put("user_img", "");
+            }else{
+                map.put("user_img", comment.get("user_img"));
+            }
             map.put("username", comment.get("username"));
-
+            map.put("hasOwnImg", !(comment.get("user_img") == null));
             latest_comments.add(map);
         }
         return latest_comments;
