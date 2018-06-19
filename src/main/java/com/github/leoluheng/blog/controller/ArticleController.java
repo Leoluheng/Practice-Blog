@@ -26,11 +26,17 @@ public class ArticleController extends Controller {
     // public methods
 
     public void index() {
+//        String address = getPara("address");
+//        setAttr("address",address);
         render("/WEB-INF/view/blog/article.html");
     }
 
     public void getArticleContentAndComment(){
         Map<String, Object> response = new HashMap<String, Object>();
+
+        String username = getSessionAttr("username");
+        setAttr("user_img", contentManager.get_userImg(username));
+        //Maybe we can think of another way for login&identification ?
 
         String param = getPara("address");
         Map<String, Object> article = contentManager.get_article(param);

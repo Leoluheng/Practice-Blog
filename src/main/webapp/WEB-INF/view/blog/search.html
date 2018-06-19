@@ -6,14 +6,7 @@
 <div class="row">
     <div id="vmaig-content" class="col-md-8 col-lg-9">
         <div id="all-post-list" class="well">
-
-            #if(null != article_list)
-            #set(post_list = article_list)
-            #for(post : post_list)
             #include("include/search_post.html")
-            #end
-            #end
-
         </div>
         <!--分页 -->
         <ul class="pager">
@@ -55,6 +48,7 @@
         #include("vmaig_comments/latest_comments.html")
     </div>
     <script type="text/javascript" src="/static/module/base/base.js"></script>
+    <script type="text/javascript" src="/static/module/search/search.js"></script>
 
 </div>
 

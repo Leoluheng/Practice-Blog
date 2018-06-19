@@ -26,12 +26,18 @@ public class CommentService {
                 "comment1.parent_id as parent, comment1.text as text, format(comment1.create_time, 'YYYY-MM-DD HH:II:SS') as create_time, " +
                 "comment1.id as comment_id, user2.username as parentUser_username, comment2.text as parent_text " +
                 "from `vmaig_comments_comment` comment1, `vmaig_comments_comment` comment2, `vmaig_auth_vmaiguser` user1, `vmaig_auth_vmaiguser` user2 " +
-                "where comment1.article_id = ? AND comment2.id = comment1.parent_id AND user1.id = comment1.user_id AND user2.id = comment2.user_id", article_id);
+                "where comment1.article_id = ? AND comment2.article_id = comment1.article_id AND comment2.id = comment1.parent_id AND user1.id = comment1.user_id AND user2.id = comment2.user_id", article_id);
         CommentAdder comment;
         for(int i = 0; i < commentSheet.size(); i++){
             comment = commentSheet.get(i);
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("user_img", comment.get("user_img"));
+            String img = comment.get("user_img");
+            if(img == null | StrKit.isBlank(img)){
+                map.put("user_img", "");
+            }else{
+                map.put("user_img", comment.get("user_img"));
+            }
+            map.put("showImg", !StrKit.isBlank(img));
             map.put("user_username", comment.get("user_username"));
             map.put("parent", comment.get("parent"));
             map.put("text", comment.get("text"));

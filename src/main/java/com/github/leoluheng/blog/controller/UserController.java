@@ -40,36 +40,23 @@ public class UserController extends Controller {
         int is_correct = userManager.verifyLogin(username, password);
         if (is_correct == 0) {
             setSessionAttr("username", username);
-            setSessionAttr("is_active", "true");
-            String tx = userManager.getTx(username);
-//            setSessionAttr("tx", tx);
-            //More to add if needed
-            setAttr("user_img", tx);
-            setAttr("username", username);
-//            redirect("/");
-        }else if(is_correct == 1){
+        } else if (is_correct == 1) {
             errors.add("Incorrect password");
-        }else{
+        } else {
             errors.add("Incorrect username");
         }
-        response.put("errors",errors);
+        response.put("errors", errors);
         renderJson(response);
     }
 
     public void doLogout() {
-        String status = getSessionAttr("is_active");
-        Boolean is_active = Boolean.parseBoolean(status);
-        if (!is_active) {
-            return;
-        } else {
-            removeSessionAttr("username");
-            removeSessionAttr("is_active");
-//            removeSessionAttr("tx");
-//            removeAttr("user");
-        }
+        String username = getSessionAttr("username");
+        removeSessionAttr("username");
+        removeSessionAttr("is_active");
+        userManager.doLogout(username);
     }
 
-    public void register(){
+    public void register() {
         render("/WEB-INF/view/blog/register.html");
     }
 
@@ -90,7 +77,7 @@ public class UserController extends Controller {
         Map<String, List<String>> response = new HashMap<String, List<String>>();
         List<String> errors = new ArrayList<String>();
 
-        if(password1.equals("") || password2.equals("") || username.equals("") || email.equals("")){
+        if (password1.equals("") || password2.equals("") || username.equals("") || email.equals("")) {
             errors.add("All fields need to be filled");
             response.put("errors", errors);
             renderJson(response);
@@ -118,7 +105,7 @@ public class UserController extends Controller {
         }
     }
 
-    public void changepassword(){
+    public void changepassword() {
         render("/WEB-INF/view/blog/user_changepassword.html");
     }
 
@@ -137,12 +124,12 @@ public class UserController extends Controller {
 
         Map<String, List<String>> response = new HashMap<String, List<String>>();
         List<String> errors = new ArrayList<String>();
-        if(newPassword.equals("") || newPassword1.equals("")){
+        if (newPassword.equals("") || newPassword1.equals("")) {
             errors.add("All fields need to be filled");
             response.put("errors", errors);
             renderJson(response);
             return;
-        }else if (!newPassword.equals(newPassword1)) {
+        } else if (!newPassword.equals(newPassword1)) {
             errors.add("Password mismatch");
             response.put("errors", errors);
             renderJson(response);
@@ -150,7 +137,7 @@ public class UserController extends Controller {
         }
         int id = userManager.getId(username);
 
-        if(-1 == id){
+        if (-1 == id) {
             errors.add("Account Lost. Server is under attack!!! Serious Damage occurred!!");
         }
         response.put("errors", errors);
@@ -164,7 +151,7 @@ public class UserController extends Controller {
 //        redirect("/login");
     }
 
-    public void forgetPassword(){
+    public void forgetPassword() {
         render("/WEB-INF/view/blog/forgetpassword.html");
     }
 
@@ -191,7 +178,7 @@ public class UserController extends Controller {
         if (sid.isEmpty() || id.isEmpty()) {
             System.out.println("请求的链接不正确,请重新操作.");
             message = "请求的链接不正确,请重新操作.";
-        }else {
+        } else {
             UserAdder userSheet = new UserAdder().dao().findById(Integer.parseInt(id));
             if (userSheet != null) {
                 String key = userSheet.get("username") + "$" + userSheet.get("secretKey");
@@ -213,27 +200,28 @@ public class UserController extends Controller {
         setAttr("ErrorMessage", message);
     }
 
-    public void doResetPass(){
+    public void doResetPass() {
         UserAdder userSheet = getAttr("userSheet");
         String newPassword, newPassword1;
 
         newPassword = getPara("vmaig-auth-resetpassword-password1");
         newPassword1 = getPara("vmaig-auth-resetpassword-password2");
 
-        if(!newPassword.equals(newPassword1)){
-            setAttr("ErrorMessage","password mismatch");
+        if (!newPassword.equals(newPassword1)) {
+            setAttr("ErrorMessage", "password mismatch");
         }
         userSheet.set("password", newPassword).update();    //业务逻辑是不是不应该放这里？不可以 ： 可以允许这一次以节省代码量
         removeAttr("userSheet");
         redirect("user.html");
     }
 
-    public void changetx(){
+    public void changetx() {
 //        String username = getSessionAttr("username");
 //        setAttr("tx", userManager.getTx(username));
         render("/WEB-INF/view/blog/user_changetx.html");
     }
-    public void dochangetx(){
+
+    public void dochangetx() {
 //        String path = "";
 //        String uploadDir = File.separator + "upload" + File.separator + "contract" + File.separator;
 //        path = PathKit.getWebRootPath() + uploadDir;
@@ -258,7 +246,7 @@ public class UserController extends Controller {
 //        setSessionAttr("tx", txPath);
     }
 
-    public void notification(){
+    public void notification() {
         String username = getSessionAttr("username");
         //////get_notification()
 //        setAttr("")
@@ -266,11 +254,11 @@ public class UserController extends Controller {
         render("/WEB-INF/view/blog/user_notification.html");
     }
 
-    public Map<Integer, Map<String, Object>> getNotification(String username){
+    public Map<Integer, Map<String, Object>> getNotification(String username) {
         return userManager.get_notification_list(username);
     }
 
-    public void getNotificationContent(){
+    public void getNotificationContent() {
 
     }
 

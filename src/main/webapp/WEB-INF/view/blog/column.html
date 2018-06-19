@@ -3,20 +3,12 @@
 #define main()
 <div class="row">
     <div id="vmaig-content" class="col-md-8 col-lg-9">
-        <div class="well">
-            <!--{% autoescape off%}-->
-            #--#[[--#
+        <div id="column-summary" class="well">
             #(column_summary)
-            #--]]#--#
-            <!--{% endautoescape %}-->
         </div>
 
-        <div class="well">
-
-            #if(null != article_list)
-                #include("include/category_post.html")
-            #end
-
+        <div id="column-post" class="well">
+            #include("include/column_post.html")
         </div>
 
         <!--分页 -->
@@ -33,7 +25,7 @@
         #include("vmaig_comments/latest_comments.html")
     </div>
     <script type="text/javascript" src="/static/module/base/base.js"></script>
-
+    <script type="text/javascript" src="/static/module/column/column.js"></script>
 </div>
 
 #end

@@ -41,6 +41,7 @@ public class Config extends JFinalConfig {
     public void configRoute(Routes me) {
         me.setBaseViewPath("/WEB-INF/view");
         me.add("/", MyController.class);
+        me.add("/blog", MyController.class);
         me.add("/user", UserController.class);
         me.add("/all", AllController.class);
         me.add("/article", ArticleController.class);

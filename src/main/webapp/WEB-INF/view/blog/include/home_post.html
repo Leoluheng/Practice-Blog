@@ -11,7 +11,7 @@
                 </div>
             </a>
             <h1>
-                <a href="'/article/?address=' + post.enTitle">{{post.title}}</a>
+                <a :href="'/article/?address=' + post.enTitle">{{post.title}}</a>
             </h1>
             <div class="post-info">
             <span>
@@ -44,7 +44,7 @@
             <div class="row">
                 <div class="col-sm-4">
                     <figure class="thumbnail">
-                        <a :href="'/article/' + post.enTitle">
+                        <a :href="'/article/?address=' + post.enTitle">
                             <img :src="post.img" height="300" alt="">
                         </a>
                     </figure>

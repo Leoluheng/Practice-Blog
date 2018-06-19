@@ -37,8 +37,7 @@
                 </li>
 
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                #if(is_active == "false")
+            <ul v-if="!is_active" id="before-login" class="nav navbar-nav navbar-right">
                 <li>
                     <a id="nav-login" data-toggle="modal" data-target="#login-modal"
                        style="padding-right:0px;cursor:pointer;">
@@ -51,12 +50,15 @@
                         注册
                     </a>
                 </li>
-                #else
+            </ul>
+
+            <ul v-else id="after-login" class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="javascript:;" style="padding:5px;" data-toggle="dropdown">
-                        <img src="#(user_img??'/static/img/default.jpg')" alt="" width="40">
-                        &nbsp;#(username)
-                        <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
+                        <img v-if="showImg" src="img" alt="" width="40">
+                        <img v-else src="/static/img/default.jpg" alt="" width="40">
+                        &nbsp;{{username}}
+                        <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                     </a>
                     <ul class="dropdown-menu navbar-right">
                         <li><a href="/user/changetx">
@@ -68,14 +70,13 @@
                         <li><a href="/user/notification">
                             <span class="glyphicon glyphicon-envelope"></span>
                             消息
-                            <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
+                            <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                         </a></li>
                         <li><a id="logout" href="javascript:;">
                             <span class="glyphicon glyphicon-log-out"></span>
                             退出</a></li>
                     </ul>
                 </li>
-                #end
             </ul>
 
             <!--
@@ -230,6 +231,24 @@
 
         });
         return false;
+    });
+
+    $.ajax({
+        type: "post",
+        url: "/navUser",
+        dataType: "json",
+        success: function(data, textStatus){
+            var vm_navUser = new Vue({
+                el: "#vmaig-navbar-collapse",
+                data: {
+                    "username": data["username"],
+                    "img": data["img"],
+                    "showImg": data["showImg"],
+                    "is_active": data["is_active"],
+                    "user_notificationNum": data["user_notificationNum"]
+                }
+            });
+        }
     });
 
     $("#login-button").click(function () {

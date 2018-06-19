@@ -18,10 +18,10 @@ public class AuthInterceptor implements Interceptor {
 
         Controller ctrl = me.getController();
         String username = ctrl.getSessionAttr("username");
-        String is_active = ctrl.getSessionAttr("is_active");
+//        String is_active = ctrl.getSessionAttr("is_active");
         String action = me.getActionKey();
 
-        if(noDirectAccess.contains(action) && (username == null || is_active == null)){
+        if(noDirectAccess.contains(action) && (username == null)){
             ctrl.redirect("/user/login");
 //            me.invoke();
         }else{

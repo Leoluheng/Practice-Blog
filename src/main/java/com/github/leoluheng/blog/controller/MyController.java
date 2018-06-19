@@ -25,6 +25,7 @@ public class MyController extends Controller {
     NavService navManager = NavService.getInstance();
     UserService userManager = UserService.getInstance();
     CommentService commentManager = CommentService.getInstance();
+
     // static block
     static {
 
@@ -39,9 +40,9 @@ public class MyController extends Controller {
         System.out.println(this.getRequest().getRemoteAddr());
     }
 
-    public void doIndex(){
+    public void doIndex() {
         //declaration of the server response data structure
-        Map<String, List<Map<String,Object>>> response = new HashMap<String, List<Map<String, Object>>>();
+        Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         setAttr("nav_list", navManager.get_nav_list());  //modified to be an Ajax request in nav.html
         String is_active = getSessionAttr("is_active");
@@ -65,8 +66,9 @@ public class MyController extends Controller {
         //pass server response to frontend
         renderJson(response);
     }
-    public void carousel(){
-        Map<String, List<Map<String,Object>>> response = new HashMap<String, List<Map<String, Object>>>();
+
+    public void carousel() {
+        Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         //pack up carousel_list data
 //        setAttr("carousel_page_list", contentManager.get_carousel_page_list());
@@ -76,8 +78,8 @@ public class MyController extends Controller {
         renderJson(response);
     }
 
-    public void sideWidgets(){
-        Map<String, List<Map<String,Object>>> response = new HashMap<String, List<Map<String, Object>>>();
+    public void sideWidgets() {
+        Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         //pack up hot_article_list
 //        setAttr("hot_article_list", contentManager.get_hot_article_list());
@@ -92,11 +94,30 @@ public class MyController extends Controller {
         renderJson(response);
     }
 
-    public void navColumn(){
+    public void navColumn() {
         ColumnService columnManager = ColumnService.getInstance();
         List<String> columnList = columnManager.getColumnList();
 
         renderJson(columnList);
+    }
+
+    public void navUser() {
+        String username = getSessionAttr("username");
+        UserService userManager = UserService.getInstance();
+        Map<String, Object> response = new HashMap<String, Object>();
+        String img = userManager.getTx(username);
+        response.put("is_active", userManager.isActive(username));
+        response.put("username", username);
+        if (img == null) {
+            response.put("showImg", false);
+            response.put("img", "");
+        }else{
+            response.put("showImg", true);
+            response.put("img",img);
+        }
+        response.put("user_notificationNum", userManager.getUserNotificationNum(username));
+
+        renderJson(response);
     }
 
     // protected methods

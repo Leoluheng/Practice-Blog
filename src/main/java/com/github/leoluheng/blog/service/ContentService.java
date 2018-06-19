@@ -46,10 +46,11 @@ public class ContentService {
         String term = "%";
         term += keyword + "%";
         List<Map<String, Object>> result_list = new ArrayList<Map<String, Object>>();
-        List<ContentAdder> resultSheet = ContentAdder.dao.find("select article.en_title as enTitle, article.title as title, " +
-                "article.tags as tags, article.img as img, article.summary as summary, article.pub_time as pub_time," +
-                " article.view_times as view_times, category.name as category, article.id as article_id " +
-                "from `blog_article` article, `blog_category` category where category.id = article.category_id AND article.content like ?", term);
+        List<ContentAdder> resultSheet = ContentAdder.dao.find("SELECT article.en_title AS enTitle,article.title AS title," +
+                "article.tags AS tags,article.img AS img,article.summary AS summary,article.pub_time AS pub_time,article.view_times AS view_times," +
+                "category.NAME AS category,article.id AS article_id FROM `blog_article` article,`blog_category` category " +
+                "WHERE category.id=article.category_id AND (article.content LIKE ? OR article.title LIKE ? OR " +
+                "article.summary LIKE ? OR article.tags LIKE ?)", term, term, term, term);
         ContentAdder result;
 
         CommentService commentManager = CommentService.getInstance();
@@ -57,8 +58,6 @@ public class ContentService {
         for (int i = 0; i < resultSheet.size(); i++) {
             result = resultSheet.get(i);
             Map<String, Object> map = new HashMap<String, Object>();
-
-
             map.put("enTitle", result.get("enTitle"));
             map.put("category", result.get("category"));
             map.put("title", result.get("title"));
@@ -256,6 +255,17 @@ public class ContentService {
             tagList = Splitter.on(",").splitToList(tags);
         }
         return tagList;
+    }
+
+    public String get_userImg(String username) {
+        if(username == null){
+            return "";
+        }else {
+            String img;
+            ContentAdder user = ContentAdder.dao.findFirst("select user.img from vmaig_auth_vmaiguser user where user.username = ?", username);
+            img = user.get("user.img");
+            return img;
+        }
     }
 
 //    public String get_format_date(int article_id, String format){

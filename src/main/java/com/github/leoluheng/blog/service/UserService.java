@@ -13,6 +13,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.crypto.Data;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class UserService {
@@ -40,6 +44,11 @@ public class UserService {
             }
             return 1;
         }
+        Date latestLogin = new Date();
+        DateFormat simpleformat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        int id = getId(username);
+        UserAdder user = UserAdder.dao.findById(id);
+        user.set("is_active", 1).set("last_login", simpleformat.format(latestLogin)).update();
         return 0;
     }
 
@@ -246,4 +255,19 @@ public class UserService {
         return notification_list;
     }
 
+    public Boolean isActive(String username){
+        UserAdder userSheet = UserAdder.dao.findFirst("select is_active from vmaig_auth_vmaiguser where username = ?", username);
+        if(userSheet != null){
+            Boolean is_active = userSheet.get("is_active");
+            return is_active;
+        }else{
+            return false;
+        }
+    }
+
+    public void doLogout(String username) {
+        int id = getId(username);
+        UserAdder userSheet = UserAdder.dao.findById(id);
+        userSheet.set("is_active", 0).update();
+    }
 }
