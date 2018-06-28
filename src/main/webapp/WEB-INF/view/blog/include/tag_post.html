@@ -16,7 +16,7 @@
         </span>
         <div class="post-tags">
             <a v-for="(tag, index) in post.get_tags" :href="'/tag/?tag=' + tag">
-                <span :class="'label label-vmaig-' + index + 'btn'">{{tag}}</span>
+                <span :class="'label label-vmaig-' + index + ' btn'">{{tag}}</span>
             </a>
         </div>
     </div>
@@ -25,7 +25,8 @@
             <div class="col-sm-4">
                 <figure class="thumbnail">
                     <a :href="'/article/?address=' + post.enTitle">
-                        <img :src="post.img"  height="400" alt="">
+                        <img v-if="post.showImg" :src="post.img" height="400" alt="">
+                        <img v-else src="/static/img/article/origin.jpg" height="400" alt="">
                     </a>
                 </figure>
             </div>
@@ -43,7 +44,7 @@
         </span>
         <span>
             <span class="glyphicon glyphicon-comment"></span>
-            {{post.commentNum}}
+            {{post.comment_num}}
         </span>
         <span>
             <span class="glyphicon glyphicon-eye-open"></span>

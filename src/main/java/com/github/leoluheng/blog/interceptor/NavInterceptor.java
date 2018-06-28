@@ -10,8 +10,8 @@ import com.jfinal.kit.PropKit;
 public class NavInterceptor implements Interceptor {
     @Override
     public void intercept(Invocation me) {
-        UserService userManager = UserService.getInstance();
-        ColumnService columnManager = ColumnService.getInstance();
+//        UserService userManager = UserService.getInstance();
+//        ColumnService columnManager = ColumnService.getInstance();
 
         String action = me.getActionKey();
         Controller ctrl = me.getController();

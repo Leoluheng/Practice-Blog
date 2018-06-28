@@ -19,7 +19,7 @@ public class LinkService {
         }
         return instance;
     }
-    public List<Map<String, Object>> get_links() {
+    public List<Map<String, Object>> getLinks() {
         List<Map<String, Object>> link_list = new ArrayList<Map<String, Object>>();
         String[] color = new String[]{"primary", "success", "info", "warning", "danger"};
 

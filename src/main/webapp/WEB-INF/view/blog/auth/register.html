@@ -4,7 +4,7 @@
             <h3 class="panel-title">注册</h3>
         </div>
         <form id="vmaig-auth-register-form" class="form-horizontal clearfix" method="post" role="form">
-            {% csrf_token %}
+            <!--{% csrf_token %}-->
             <div class="form-group">
                 <label for="vmaig-auth-register-username" class="col-sm-2 control-label">用户名</label>
                 <div class="col-sm-8">
@@ -50,7 +50,7 @@
                 "password1":$("#vmaig-auth-register-password1").val(),"password2":$("#vmaig-auth-register-password2").val(),},
             dataType:'json',
             beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success:function(data,textStatus){
                 var errors = data["errors"];

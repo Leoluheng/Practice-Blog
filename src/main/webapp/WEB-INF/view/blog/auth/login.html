@@ -4,7 +4,7 @@
             <h3 class="panel-title">请登陆</h3>
         </div>
         <form id="vmaig-auth-login-form" class="clearfix" method="post" role="form">
-            {% csrf_token %}
+            <!--{% csrf_token %}-->
             <div class="form-group">
                 <div class="input-group">
                     <div class="input-group-addon">
@@ -36,7 +36,7 @@
             url:"/user/doLogin",
             data:{"username":$("#vmaig-auth-login-username").val(),"password":$("#vmaig-auth-login-password").val()},
             beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success:function(data,textStatus){
                 var errors = data["errors"];

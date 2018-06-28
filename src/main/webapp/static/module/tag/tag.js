@@ -11,7 +11,8 @@
             var article_list = data["article_list"];
 
             if (article_list.length === 0) {
-                $("#all-post-list").empty();
+                $("#all-post-list").empty().html("<div class='home-post well clearfix'>\n<div class='post-title underline clearfix'>" +
+                    "\n<h1>There is no articles posted yet!!!!</h1></div></div>");
             } else {
                 var vm_tag = new Vue({
                     el: "#all-post-list",

@@ -55,8 +55,8 @@
             <ul v-else id="after-login" class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="javascript:;" style="padding:5px;" data-toggle="dropdown">
-                        <img v-if="showImg" src="img" alt="" width="40">
-                        <img v-else src="/static/img/default.jpg" alt="" width="40">
+                        <img v-if="showImg" :src="img" alt="" width="40">
+                        <img v-else src="/static/img/origin.jpg" alt="" width="40">
                         &nbsp;{{username}}
                         <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                     </a>
@@ -72,7 +72,7 @@
                             消息
                             <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                         </a></li>
-                        <li><a id="logout" href="javascript:;">
+                        <li><a id="logout" href="javascript:;" onclick="logout()">
                             <span class="glyphicon glyphicon-log-out"></span>
                             退出</a></li>
                     </ul>
@@ -101,7 +101,7 @@
             </div>
             <div class="modal-body clearfix">
                 <form id="login-form" class="form-horizontal" method="post" role="form">
-                    {% csrf_token %}
+                    <!--{% csrf_token %}-->
                     <div class="form-group">
                         <label for="login-username" class="col-sm-2 control-label">用户名</label>
                         <div class="col-sm-6">
@@ -142,7 +142,7 @@
 
             <div class="modal-body clearfix">
                 <form id="register-form" class="form-horizontal" method="post" role="form">
-                    {% csrf_token %}
+                    <!--{% csrf_token %}-->
                     <div class="form-group">
                         <label for="register-username" class="col-sm-2 control-label">用户名</label>
                         <div class="col-sm-6">
@@ -184,6 +184,40 @@
 </div>
 
 <script language="javascript" type="text/javascript">
+
+    var vm_navUser = new Vue({
+        el: "#vmaig-navbar-collapse",
+        data: {
+            "column_list": [],
+            "username": "",
+            "img": "",
+            "showImg": "",
+            "is_active": "",
+            "user_notificationNum": ""
+        }
+    });
+
+
+    (function(){
+        $.ajax({
+            type: "post",
+            url: "/navUser",
+            dataType: "json",
+            success: function(data, textStatus){
+                vm_navUser.username = data["username"];
+                vm_navUser.img = data["img"];
+                vm_navUser.showImg = data["showImg"];
+                vm_navUser.is_active = data["is_active"];
+                vm_navUser.user_notificationNum = data["user_notificationNum"];
+                if(window.vm_user) {
+                        vm_user.username = vm_navUser.username;
+                        vm_user.user_img = vm_navUser.img;
+                }
+
+            }
+        });
+    })();
+
     $.ajax({
         type: "post",
         url: "/navColumn",
@@ -192,12 +226,7 @@
             if (data.length === 0) {
                 $("navColumn").remove();
             } else {
-                var vm_navColumn = new Vue({
-                    el: "#nav-base",
-                    data: {
-                        "column_list": data
-                    }
-                });
+                vm_navUser.column_list = data;
             }
         }
     });
@@ -208,7 +237,7 @@
             url: "/user/doLogin",
             data: {"username": $("#login-username").val(), "password": $("#login-password").val()},
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success: function (data, textStatus) {
                 var errors = data["errors"];
@@ -233,23 +262,7 @@
         return false;
     });
 
-    $.ajax({
-        type: "post",
-        url: "/navUser",
-        dataType: "json",
-        success: function(data, textStatus){
-            var vm_navUser = new Vue({
-                el: "#vmaig-navbar-collapse",
-                data: {
-                    "username": data["username"],
-                    "img": data["img"],
-                    "showImg": data["showImg"],
-                    "is_active": data["is_active"],
-                    "user_notificationNum": data["user_notificationNum"]
-                }
-            });
-        }
-    });
+
 
     $("#login-button").click(function () {
         $("#login-modal .alert").remove();
@@ -266,7 +279,7 @@
             },
             dataType: 'json',
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
 
             //服务器成功返回值 状态：200
@@ -274,8 +287,8 @@
                 //业务异常处理
                 var errors = data["errors"];
                 if (errors.length == 0) {
-                    // location.reload();
-                    location.load("base.html");
+                    location.reload();
+                    // location.load("base.html");
 
                 }
                 else {
@@ -301,12 +314,13 @@
         $("#register-modal .alert").remove();
     });
 
-    $("#logout").click(function () {
+    $("#logout").on('click',function () {
+        debugger
         $.ajax({
             type: "POST",
             url: "/user/doLogout",
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success: function (data, textStatus) {
                 location.replace("/");
@@ -317,6 +331,22 @@
         });
         return false;
     });
+
+    function logout(){
+        $.ajax({
+            type: "POST",
+            url: "/user/doLogout",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
+            },
+            success: function (data, textStatus) {
+                location.replace("/");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.responseText);
+            }
+        });
+    }
 
 
 </script>

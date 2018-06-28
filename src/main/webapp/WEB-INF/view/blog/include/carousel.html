@@ -6,7 +6,7 @@
     <!-- 轮播（Carousel）项目 -->
     <div class="carousel-inner">
         <div v-for="(carouselPage, index) in carouselList" :class="{item : true ,active : index == 0}">
-            <a :href="'/article/' + carouselPage.article_en_title">
+            <a :href="'/article/?address=' + carouselPage.article_en_title">
                 <img :src="carouselPage.img" :alt="carouselPage.title">
                 <div class="carousel-caption">
                     <h4>{{ carouselPage.title }}</h4>

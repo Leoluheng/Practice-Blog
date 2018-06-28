@@ -1,7 +1,7 @@
 <div id="homePost">
     <div v-for="(post, index) in article_list" class="home-post well clearfix">
         <div class="post-title underline clearfix">
-            <a :href="'/category/' + post.category">
+            <a :href="'/category/?category=' + post.category">
                 <div class="pre-cat">
                     <div class="pre-catinner btn">
                         {{post.category}}
@@ -18,7 +18,7 @@
                 <span class="glyphicon glyphicon-calendar"></span>
                 <!--{{post.pub_time|date:"Y-m-d" }}-->
                 #-- #date(post.pub_time, "yyyy-MM-dd") --#
-                {{post.pub_time}}
+                {{post.pub_time | trimDate}}
             </span>
                 <span>
                 <span class="glyphicon glyphicon-comment"></span>
@@ -28,14 +28,13 @@
                 <span class="glyphicon glyphicon-eye-open"></span>
                 {{post.view_times}}
             </span>
-                <div class="post-tags">
-                    <a v-for="(tag, num) in post.get_tags" :href="'/tag/?tag=' + tag" :class="{ 'hidden-xs' : post.showTag}" >
+                <div v-for="(tag, num) in post.get_tags" class="post-tags">
+                    <a :href="'/tag/?tag=' + tag" :class="{'hidden-xs' : post.showTag}" >
                         <span :class="'label label-vmaig-' + num + ' btn'">{{tag}}</span>
                     </a>
                     <a class="visible-xs-inline-block">
                         <span class="label label-vmaig-2 btn ">...</span>
                     </a>
-
                 </div>
 
             </div>
@@ -45,7 +44,9 @@
                 <div class="col-sm-4">
                     <figure class="thumbnail">
                         <a :href="'/article/?address=' + post.enTitle">
-                            <img :src="post.img" height="300" alt="">
+                            <img v-if="post.showImg" :src="post.img" height="300" alt="">
+                            <img v-else src="/static/img/article/default.jpg" height="300" alt="">
+
                         </a>
                     </figure>
                 </div>

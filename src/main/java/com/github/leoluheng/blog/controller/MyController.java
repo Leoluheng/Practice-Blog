@@ -5,7 +5,10 @@
 package com.github.leoluheng.blog.controller;
 
 import com.github.leoluheng.blog.service.*;
+import com.jfinal.aop.Before;
 import com.jfinal.core.Controller;
+import com.jfinal.plugin.ehcache.CacheInterceptor;
+import com.jfinal.plugin.ehcache.CacheName;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,23 +47,26 @@ public class MyController extends Controller {
         //declaration of the server response data structure
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
+        //in fact, this attribute is never used
         setAttr("nav_list", navManager.get_nav_list());  //modified to be an Ajax request in nav.html
+
+
         String is_active = getSessionAttr("is_active");
         setAttr("is_active", is_active);
 
         //pack up homepage article_list data
-//        setAttr("article_list", contentManager.get_article_list("index"));
-        List<Map<String, Object>> article_list = contentManager.get_article_list("index");
+//        setAttr("article_list", contentManager.getArticleList("index"));
+        List<Map<String, Object>> article_list = contentManager.getArticleList("index");
         response.put("article_list", article_list);
 
         ///////////////////////////////////////////////////////////
         //pack up page_obj data////////////////////////////////////
-        setAttr("page_obj", contentManager.get_page_obj());/////////////////////////////////////////
+        setAttr("page_obj", contentManager.getPageObj());/////////////////////////////////////////
         ///////////////////////////////////////////////////////////
 
         //pack up links data
-//        setAttr("links", linkManager.get_links());
-        List<Map<String, Object>> link_list = linkManager.get_links();
+//        setAttr("links", linkManager.getLinks());
+        List<Map<String, Object>> link_list = linkManager.getLinks();
         response.put("links", link_list);
 
         //pass server response to frontend
@@ -71,8 +77,8 @@ public class MyController extends Controller {
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         //pack up carousel_list data
-//        setAttr("carousel_page_list", contentManager.get_carousel_page_list());
-        List<Map<String, Object>> carousel_list = contentManager.get_carousel_page_list();
+//        setAttr("carousel_page_list", contentManager.getCarouselPageList());
+        List<Map<String, Object>> carousel_list = contentManager.getCarouselPageList();
         response.put("carousel_list", carousel_list);
 
         renderJson(response);
@@ -82,25 +88,28 @@ public class MyController extends Controller {
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         //pack up hot_article_list
-//        setAttr("hot_article_list", contentManager.get_hot_article_list());
-        List<Map<String, Object>> hot_article_list = contentManager.get_hot_article_list();
+//        setAttr("hot_article_list", contentManager.getHotArticleList());
+        List<Map<String, Object>> hot_article_list = contentManager.getHotArticleList();
         response.put("hot_article_list", hot_article_list);
 
         //pack up latest_comment_list
-//        setAttr("latest_comment_list", commentManager.get_latest_comments());
-        List<Map<String, Object>> latest_comment_list = commentManager.get_latest_comments();
+//        setAttr("latest_comment_list", commentManager.getLatestComments());
+        List<Map<String, Object>> latest_comment_list = commentManager.getLatestComments();
         response.put("latest_comment_list", latest_comment_list);
 
         renderJson(response);
     }
 
+    @Before(CacheInterceptor.class)
+    @CacheName("navColumn")
     public void navColumn() {
         ColumnService columnManager = ColumnService.getInstance();
         List<String> columnList = columnManager.getColumnList();
-
         renderJson(columnList);
     }
 
+//    @Before(CacheInterceptor.class)
+//    @CacheName("navUser")
     public void navUser() {
         String username = getSessionAttr("username");
         UserService userManager = UserService.getInstance();
@@ -108,13 +117,14 @@ public class MyController extends Controller {
         String img = userManager.getTx(username);
         response.put("is_active", userManager.isActive(username));
         response.put("username", username);
-        if (img == null) {
+        if (img == null || img == "") {
+            img = "";
             response.put("showImg", false);
-            response.put("img", "");
         }else{
             response.put("showImg", true);
-            response.put("img",img);
         }
+        response.put("img",img);
+
         response.put("user_notificationNum", userManager.getUserNotificationNum(username));
 
         renderJson(response);

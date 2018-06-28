@@ -1,14 +1,14 @@
 #include("../layout/base.html")
 #@base()
-#define main()
 
+#define main()
 <div class="row">
     <div id="vmaig-content" class="col-md-8 col-lg-9">
         <div id="article-page" class="well">
             <ol class="breadcrumb">
                 <li><a href="/"><span class="glyphicon glyphicon-home"></span></a></li>
                 <li><a :href="'/category/?category=' + article.category">{{article.category}}</a></li>
-                <li class="hidden-xs"><a><span class="glyphicon glyphicon-calendar"></span> {{article.pub_time}}</a>
+                <li class="hidden-xs"><a><span class="glyphicon glyphicon-calendar"></span> {{article.pub_time }}</a>
                 </li>
                 <li><a>
                     <span class="glyphicon glyphicon-eye-open"></span>
@@ -30,10 +30,7 @@
                 </div>
                 <hr/>
                 <div class="article-content">
-                    <!--{% autoescape off%}-->
                     {{article.content | trimText}}
-                    <!--{% endautoescape %}-->
-
                 </div>
             </div>
         </div>
@@ -42,18 +39,12 @@
         #include("vmaig_comments/vmaig_comments.html")
 
     </div>
-
     <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
-
         #include("widgets/tags_cloud.html")
         #include("widgets/search.html")
         #include("widgets/hotest_posts.html")
         #include("vmaig_comments/latest_comments.html")
     </div>
-    <script type="text/javascript" src="/static/module/base/base.js"></script>
-    <script type="text/javascript" src="/static/module/article/article.js"></script>
-    <script type="text/javascript" src="/static/module/article/submitComments.js"></script>
-
 </div>
 #end
 
@@ -68,11 +59,24 @@
     blockquote {
         font-size: 14px;
     }
+
+    #tags_cloud {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
 </style>
 #end
 
 
 #define js()
+<script type="text/javascript" src="/static/module/base/base.js"></script>
+<script type="text/javascript" src="/static/module/article/article.js"></script>
+///tags_cloud
+<script src="/static/lib/d3/d3.js"></script>
+<script src="/static/js/d3.layout.cloud.js"></script>
+<script src="/static/module/tagsCloud/tagsCloud.js"></script>
+//highlighter
 <script type="text/javascript" src="/static/syntaxhighlighter/scripts/shCore.js"></script>
 <script type="text/javascript" src="/static/syntaxhighlighter/scripts/shBrushCpp.js"></script>
 <script type="text/javascript" src="/static/syntaxhighlighter/scripts/shBrushJava.js"></script>
@@ -81,5 +85,4 @@
 <script type="text/javascript" src="/static/syntaxhighlighter/scripts/shBrushPowerShell.js"></script>
 <script type="text/javascript" src="/static/syntaxhighlighter/scripts/shBrushJScript.js"></script>
 <script type="text/javascript">SyntaxHighlighter.all();</script>
-
 #end

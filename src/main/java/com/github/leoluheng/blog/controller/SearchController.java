@@ -1,6 +1,5 @@
 package com.github.leoluheng.blog.controller;
 
-import com.github.leoluheng.blog.service.CommentService;
 import com.github.leoluheng.blog.service.ContentService;
 import com.github.leoluheng.blog.utility.Encodes;
 import com.jfinal.core.Controller;
@@ -22,7 +21,7 @@ public class SearchController extends Controller {
         String keyword = getPara("keyword");
         keyword = Encodes.urlDecode(keyword);
         Map<String,List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
-        List<Map<String, Object>> article_list = contentManager.search_article_list(keyword);
+        List<Map<String, Object>> article_list = contentManager.searchArticleList(keyword);
         response.put("articleList", article_list);
         renderJson(response);
     }

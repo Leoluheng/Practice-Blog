@@ -55,8 +55,22 @@
         #include("vmaig_comments/latest_comments.html")
     </div>
     <script type="text/javascript" src="/static/module/base/base.js"></script>
-</div>
+    //tags_cloud
+    <script src="/static/lib/d3/d3.js"></script>
+    <script src="/static/js/d3.layout.cloud.js"></script>
+    <script src="/static/module/tagsCloud/tagsCloud.js"></script>
 
+</div>
+#end
+
+#define css()
+<style>
+    #tags_cloud {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
 #end
 
 #define js()
@@ -77,7 +91,6 @@
         success: function (data, textStatus) {
             var categoryList = data["category_list"];
             var articleList = data["article_list"];
-console.log("yset");
             if (categoryList.length === 0) {
                 $("div .tag-list").children("label").first().nextAll().remove();
             } else {
@@ -90,19 +103,28 @@ console.log("yset");
             }
 
             if (articleList === 0) {
-                $("#all-post").empty();
+                $("#all-post-list").empty().html("<div class='home-post well clearfix'>\n<div class='post-title " +
+                    "underline clearfix'><h1>There is no articles posted yet!!!!</h1></div></div>");
             } else {
                 var vm_article = new Vue({
-                    el: "#all-post",
+                    el: "#all-post-list",
                     data: {
                         "article_list": articleList
                     },
                     filters: {
-                        trimText: function(text){
-                            if(text.length > 200){
+                        trimText: function (text) {
+                            if (text.length > 200) {
                                 return text.substring(0, 200) + "...";
-                            }else{
+                            } else {
                                 return text;
+                            }
+                        },
+                        trimDate: function (date) {
+                            // debugger
+                            if (date.length > 10) {
+                                return date.substring(0, 10);
+                            } else {
+                                return date;
                             }
                         }
                     }
@@ -113,11 +135,11 @@ console.log("yset");
 
     $("input[name='category']").click(function () {
         start = 0;
-    //     end = parseInt({
-    //     {
-    //         PAGE_NUM
-    //     }
-    // })
+        //     end = parseInt({
+        //     {
+        //         PAGE_NUM
+        //     }
+        // })
         ;
         $("input[name='category']").parent().removeClass("active");
         $("#all-post-more")[0].style.display = "none";
@@ -136,7 +158,7 @@ console.log("yset");
                 "end": end
             },
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success: function (data, textStatus) {
                 $("#loading")[0].style.display = "none";
@@ -156,11 +178,11 @@ console.log("yset");
 
     $("input[name='sort']").click(function () {
         start = 0;
-    //     end = parseInt({
-    //     {
-    //         PAGE_NUM
-    //     }
-    // })
+        //     end = parseInt({
+        //     {
+        //         PAGE_NUM
+        //     }
+        // })
         ;
         $("#all-post-more")[0].style.display = "none";
         $("#loading")[0].style.display = "block";
@@ -176,7 +198,7 @@ console.log("yset");
                 "end": end
             },
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success: function (data, textStatus) {
                 $("#loading")[0].style.display = "none";
@@ -209,7 +231,7 @@ console.log("yset");
                 "end": end
             },
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success: function (data, textStatus) {
                 $("#loading")[0].style.display = "none";

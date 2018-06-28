@@ -1,7 +1,6 @@
 package com.github.leoluheng.blog.controller;
 
         import com.github.leoluheng.blog.service.ColumnService;
-        import com.github.leoluheng.blog.service.CommentService;
         import com.github.leoluheng.blog.service.ContentService;
         import com.github.leoluheng.blog.utility.Encodes;
         import com.jfinal.core.Controller;
@@ -23,9 +22,10 @@ public class ColumnController extends Controller {
     public void getColumn (){
         String param = getPara("column");
         param = Encodes.urlDecode(param);
+
         String column_summry =  columnManager.getSummary(param);
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
-        List<Map<String, Object>> articleList = contentManager.get_article_list(param);
+        List<Map<String, Object>> articleList = contentManager.getArticleList(param);
 
         List<Map<String, Object>> summary = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();

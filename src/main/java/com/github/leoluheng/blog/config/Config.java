@@ -8,9 +8,13 @@ import com.jfinal.config.*;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
+import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.jfinal.template.Engine;
 
 public class Config extends JFinalConfig {
+
+    public static final String CACHE_BLOG = "_blog";
+
     public void configConstant(Constants me) {
         me.setDevMode(true);
         //Config for application.properties
@@ -41,7 +45,6 @@ public class Config extends JFinalConfig {
     public void configRoute(Routes me) {
         me.setBaseViewPath("/WEB-INF/view");
         me.add("/", MyController.class);
-        me.add("/blog", MyController.class);
         me.add("/user", UserController.class);
         me.add("/all", AllController.class);
         me.add("/article", ArticleController.class);
@@ -50,12 +53,15 @@ public class Config extends JFinalConfig {
         me.add("/search", SearchController.class);
         me.add("/news", NewsController.class);
         me.add("/tag", TagController.class);
+        me.add("/comment", CommentController.class);
     }
 
     public void configPlugin(Plugins me) {
-        DruidPlugin dp = new DruidPlugin("jdbc:mysql://localhost:3306/blog", "root","123456");
+        DruidPlugin dp = new DruidPlugin(PropKit.get("databaseUrl"), PropKit.get("databaseUsername"),
+                PropKit.get("databasePassword"));
         me.add(dp);
         ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
+         arp.setShowSql(PropKit.getBoolean("activerecord.sql.show"));
         me.add(arp);
         arp.addMapping("blog_category", CategoryAdder.class);
         arp.addMapping("blog_column", ColumnAdder.class);
@@ -67,5 +73,7 @@ public class Config extends JFinalConfig {
         arp.addMapping("blog_news", NewsAdder.class);
         arp.addMapping("vmaig_system_notification", NotificationAdder.class);
         arp.addMapping("vmaig_auth_vmaiguser", UserAdder.class);
+        arp.addMapping("vmaig_user_ip", IpAdder.class);
+        me.add(new EhCachePlugin());
     }
 }

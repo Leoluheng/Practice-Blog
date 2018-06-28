@@ -5,9 +5,7 @@
 package com.github.leoluheng.blog.controller;
 import com.github.leoluheng.blog.service.ContentService;
 import com.jfinal.core.Controller;
-import com.jfinal.kit.PropKit;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,7 @@ public class AllController extends Controller {
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
 
         List<Map<String, Object>> category_list = ContentManager.get_category_list();
-        List<Map<String, Object>> article_list = ContentManager.get_article_list("all");
+        List<Map<String, Object>> article_list = ContentManager.getArticleList("all");
 
         response.put("category_list", category_list);
         response.put("article_list", article_list);

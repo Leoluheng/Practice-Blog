@@ -21,7 +21,7 @@ public class TagController extends Controller {
         param = Encodes.urlDecode(param);
 
         Map<String, List<Map<String, Object>>> response = new HashMap<String, List<Map<String, Object>>>();
-        List<Map<String,Object>> article_list =  contentManager.get_article_list(param);
+        List<Map<String,Object>> article_list =  contentManager.getArticleList(param);
         response.put("article_list", article_list);
         renderJson(response);
     }

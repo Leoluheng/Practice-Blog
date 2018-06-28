@@ -1,4 +1,14 @@
-(function () {
+(function (window) {
+    var vm_sideWidgets = new Vue({
+        el: "#vmaig-side",
+        data: {
+            "hot_article_list": [],
+            "latest_comment_list": [],
+            "links": []
+        }
+    });
+    window.vm_sideWidgets = vm_sideWidgets;
+
     $.ajax({
         type: "POST",
         url: "/sideWidgets",
@@ -8,34 +18,25 @@
             var hotArticleList = data["hot_article_list"];
             var latestCommentList = data["latest_comment_list"];
 
-            Vue.filter("trimText", function(text){
-                if(text.length > 200){
+            Vue.filter("trimText", function (text) {
+                if (text.length > 200) {
                     return text.substring(0, 200) + "...";
-                }else{
+                } else {
                     return text;
                 }
             });
 
-            if(hotArticleList.length === 0){
+            if (hotArticleList.length === 0) {
                 $("#hotest-post-list").empty();
-            }else{
-                var vm_hotArticle = new Vue({
-                    el: "#hotest-post-list",
-                    data: {
-                        "hot_article_list": hotArticleList
-                    }
-                });
+            } else {
+                vm_sideWidgets.hot_article_list = hotArticleList;
             }
-
-            if(latestCommentList.length === 0){
+            if (latestCommentList.length === 0) {
                 $("#latest-comment-list").empty();
-            }else{
-                var vm_latestComment = new Vue({
-                   el: "#latest-comment-list",
-                   data: {
-                       "latest_comment_list": latestCommentList
-                   }
-                });
+                // }else if(latestCommentList.length > 10){
+                //     vm_sideWidgets.latest_comment_list = latestCommentList.slice(0,10);
+            } else {
+                vm_sideWidgets.latest_comment_list = latestCommentList;
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -44,5 +45,5 @@
 
     });
     // return false
-})();
+})(window);
 

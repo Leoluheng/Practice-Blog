@@ -22,6 +22,7 @@
         <script src="/static/vueJs/vue.js"></script>
 
         <!--{% block css%} {% endblock%}-->
+        #@css?()
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-109270288-1"></script>
         <script>
@@ -48,7 +49,6 @@
     <body id="vmaig">
         <!-- 导航栏 -->
         #include("/WEB-INF/view/blog/include/nav.html")
-        <!--{% include "./blog/include/nav.html"%}-->
         <!-- 文章列表 与 侧边的东西 -->
         <div id="vmaig-main">
             <div id="vmaig-content" class="container">
@@ -62,13 +62,9 @@
 
         </div>
         <script type="text/javascript" src="/static/js/vmaig.js"></script>
-        #@js?()
         <iframe name="_hjRemoteVarsFrame" title="_hjRemoteVarsFrame" id="_hjRemoteVarsFrame" src="https://vars.hotjar.com/rcj-99d43ead6bdf30da8ed5ffcb4f17100c.html" style="display: none !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important;"></iframe>
         <div id="ads"></div>
     </body>
-
-
-    <!--{% block js%}{% endblock%}-->
-
+    #@js?()
 </html>
 #end

@@ -4,14 +4,11 @@
 <div class="row">
     <div id="vmaig-content" class="col-md-8 col-lg-9">
         <div id="all-post-list" class="well">
-            #if(null != (article_list))
-                #include("include/category_post.html")
-            #end
+            #include("include/category_post.html")
         </div>
-        
         <!--分页 -->
-        #if(page_obj??)             //////////////////
-            #include("include/pagination.html")
+        #if(page_obj??) //////////////////
+        #include("include/pagination.html")
         #end
     </div>
     <div id="vmaig-side" class="col-md-4 col-lg-3 hidden-xs">
@@ -21,5 +18,20 @@
         #include("vmaig_comments/latest_comments.html")
     </div>
     <script type="text/javascript" src="/static/module/base/base.js"></script>
+    <script type="text/javascript" src="/static/module/categroy/category.js"></script>
+    ////tags_cloud
+    <script src="/static/lib/d3/d3.js"></script>
+    <script src="/static/js/d3.layout.cloud.js"></script>
+    <script src="/static/module/tagsCloud/tagsCloud.js"></script>
 </div>
+#end
+
+#define css()
+<style type="text/css">
+    #tags_cloud {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
 #end

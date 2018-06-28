@@ -8,7 +8,6 @@
             <button class="close" data-dismiss="alert" type="button">&times;</button>
             A practice blog service built by Leo Lu with reference to #(website_title) (the original author)
         </div>
-
         <div class="visible-xs">
             <div class="search">
                 <form class="form-inline clearfix" role="form" method="get" action="/search/"> 
@@ -24,8 +23,10 @@
             <!-- 首页轮播 -->
                 #include("include/carousel.html")
             <!--首页文章列表 -->
+            <span id="home-post">
                 #include("include/home_post.html")
-            <!--分页 -->
+            </span>
+                <!--分页 -->
             #if(null != page_obj)
                 #include("include/pagination.html")
             #end
@@ -38,9 +39,26 @@
         #include("widgets/search.html")
         #include("widgets/hotest_posts.html")
         #include("vmaig_comments/latest_comments.html")
+        <span id="vmaig-link">
         #include("widgets/links.html")
+        </span>
     </div>
 </div>
 <script type="text/javascript" src="/static/module/index/index.js"></script>
 <script type="text/javascript" src="/static/module/base/base.js"></script>
+//tags_cloud
+<script src="/static/lib/d3/d3.js"></script>
+<script src="/static/js/d3.layout.cloud.js"></script>
+<script src="/static/module/tagsCloud/tagsCloud.js"></script>
+
+#end
+
+#define css()
+<style>
+    #tags_cloud {
+        background-color: rgba(0,0,0,0.6);
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
 #end

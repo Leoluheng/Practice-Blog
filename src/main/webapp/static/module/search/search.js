@@ -10,7 +10,8 @@
         success: function (data, textStatus) {
             var articleList = data["articleList"];
             if (articleList.length === 0) {
-                $("#all-post-list .all-post").empty();
+                $("#all-post-list .all-post").empty().html('<div class="post-content"><i>No posts related to "' +
+                    keyword + '" is found</i></div>');
             } else {
                 var vm_searchResult = new Vue({
                     el: "#all-post-list",
