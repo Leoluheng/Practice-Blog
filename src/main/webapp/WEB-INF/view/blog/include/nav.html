@@ -1,4 +1,3 @@
-
 <header id="vmaig-header" class="navbar navbar-inverse navbar-fixed-top navbar-vmaig">
     <div class="container">
         <div class="navbar-header">
@@ -12,7 +11,7 @@
             <div class="navbar-brand">#(website_title)</div>
         </div>
         <div class="collapse navbar-collapse" id="vmaig-navbar-collapse">
-            <ul class="nav navbar-nav">
+            <ul id="nav-base" class="nav navbar-nav">
                 <li class="">
                     <a href="/">
                         <span class="glyphicon glyphicon-home"></span>
@@ -31,36 +30,35 @@
                         资讯
                     </a>
                 </li>
-
-                #if(null != column_list)
-                #for(nav:(column_list))
-                <li>
-                    <a href="/column/?column=#(nav)">
-                        #(nav)
+                <li v-for="nav in column_list">
+                    <a :href="'/column/?column=' + nav">
+                        {{nav}}
                     </a>
                 </li>
-                #end
-                #end
 
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                #if(is_active == "false")
+            <ul v-if="!is_active" id="before-login" class="nav navbar-nav navbar-right">
                 <li>
-                    <a  id="nav-login" data-toggle="modal" data-target="#login-modal"  style="padding-right:0px;cursor:pointer;">
+                    <a id="nav-login" data-toggle="modal" data-target="#login-modal"
+                       style="padding-right:0px;cursor:pointer;">
                         登陆
                     </a>
                 </li>
                 <li>
-                    <a  id="nav-register" data-toggle="modal" data-target="#register-modal" style="padding-right:0px;cursor:pointer">
+                    <a id="nav-register" data-toggle="modal" data-target="#register-modal"
+                       style="padding-right:0px;cursor:pointer">
                         注册
                     </a>
                 </li>
-                #else
+            </ul>
+
+            <ul v-else id="after-login" class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="javascript:;" style="padding:5px;" data-toggle="dropdown">
-                        <img src= "#(user_img??'/static/img/default.jpg')" alt="" width="40">
-                        &nbsp;#(username)
-                        <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
+                        <img v-if="showImg" :src="img" alt="" width="40">
+                        <img v-else src="/static/img/origin.jpg" alt="" width="40">
+                        &nbsp;{{username}}
+                        <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                     </a>
                     <ul class="dropdown-menu navbar-right">
                         <li><a href="/user/changetx">
@@ -72,14 +70,13 @@
                         <li><a href="/user/notification">
                             <span class="glyphicon glyphicon-envelope"></span>
                             消息
-                            <span class="badge" style="background-color: #D94600;">#(notification_count)</span>
+                            <span class="badge" style="background-color: #D94600;">{{user_notificationNum}}</span>
                         </a></li>
-                        <li><a id="logout" href="javascript:;">
+                        <li><a id="logout" href="javascript:;" onclick="logout()">
                             <span class="glyphicon glyphicon-log-out"></span>
                             退出</a></li>
                     </ul>
                 </li>
-                #end
             </ul>
 
             <!--
@@ -104,7 +101,7 @@
             </div>
             <div class="modal-body clearfix">
                 <form id="login-form" class="form-horizontal" method="post" role="form">
-                    {% csrf_token %}
+                    <!--{% csrf_token %}-->
                     <div class="form-group">
                         <label for="login-username" class="col-sm-2 control-label">用户名</label>
                         <div class="col-sm-6">
@@ -145,7 +142,7 @@
 
             <div class="modal-body clearfix">
                 <form id="register-form" class="form-horizontal" method="post" role="form">
-                    {% csrf_token %}
+                    <!--{% csrf_token %}-->
                     <div class="form-group">
                         <label for="register-username" class="col-sm-2 control-label">用户名</label>
                         <div class="col-sm-6">
@@ -177,7 +174,6 @@
                     </div>
 
 
-
                     <button id="register-button" type="submit" class="btn btn-primary pull-right">
                         注册
                     </button>
@@ -188,30 +184,77 @@
 </div>
 
 <script language="javascript" type="text/javascript">
-    $('#login-form').submit(function(){
+
+    var vm_navUser = new Vue({
+        el: "#vmaig-navbar-collapse",
+        data: {
+            "column_list": [],
+            "username": "",
+            "img": "",
+            "showImg": "",
+            "is_active": "",
+            "user_notificationNum": ""
+        }
+    });
+
+
+    (function(){
         $.ajax({
-            type:"POST",
-            url:"/user/doLogin",
-            data:{"username":$("#login-username").val(),"password":$("#login-password").val()},
-            beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+            type: "post",
+            url: "/navUser",
+            dataType: "json",
+            success: function(data, textStatus){
+                vm_navUser.username = data["username"];
+                vm_navUser.img = data["img"];
+                vm_navUser.showImg = data["showImg"];
+                vm_navUser.is_active = data["is_active"];
+                vm_navUser.user_notificationNum = data["user_notificationNum"];
+                if(window.vm_user) {
+                        vm_user.username = vm_navUser.username;
+                        vm_user.user_img = vm_navUser.img;
+                }
+
+            }
+        });
+    })();
+
+    $.ajax({
+        type: "post",
+        url: "/navColumn",
+        dataType: "Json",
+        success: function (data, textStatus) {
+            if (data.length === 0) {
+                $("navColumn").remove();
+            } else {
+                vm_navUser.column_list = data;
+            }
+        }
+    });
+
+    $('#login-form').submit(function () {
+        $.ajax({
+            type: "POST",
+            url: "/user/doLogin",
+            data: {"username": $("#login-username").val(), "password": $("#login-password").val()},
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
-            success:function(data,textStatus){
+            success: function (data, textStatus) {
                 var errors = data["errors"];
-                if(errors.length==0){
+                if (errors.length == 0) {
                     location.reload();
                 }
-                else{
+                else {
                     //alert(errors);
                     var html = "<div class=\"alert alert-danger\">"
-                    for (var key in errors){
-                        html += errors[key]+"<br/>";
+                    for (var key in errors) {
+                        html += errors[key] + "<br/>";
                     }
                     html += "</div>";
                     $("#login-modal .modal-header").after(html);
                 }
             },
-            error:function(XMLHttpRequest, textStatus, errorThrown){
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert(XMLHttpRequest.responseText);
             }
 
@@ -219,36 +262,40 @@
         return false;
     });
 
-    $("#login-button").click(function(){
+
+
+    $("#login-button").click(function () {
         $("#login-modal .alert").remove();
     });
 
 
-    $('#register-form').submit(function(){
+    $('#register-form').submit(function () {
         $.ajax({
-            type:"POST",
-            url:"/user/doRegister",
-            data:{"username":$("#register-username").val(),"email":$("#register-email").val(),
-                "password1":$("#register-password-1").val(),"password2":$("#register-password-2").val(),},
-            dataType:'json',
-            beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+            type: "POST",
+            url: "/user/doRegister",
+            data: {
+                "username": $("#register-username").val(), "email": $("#register-email").val(),
+                "password1": $("#register-password-1").val(), "password2": $("#register-password-2").val(),
+            },
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
 
             //服务器成功返回值 状态：200
-            success:function(data,textStatus){
+            success: function (data, textStatus) {
                 //业务异常处理
                 var errors = data["errors"];
-                if(errors.length==0){
-                    // location.reload();
-                    location.load("base.html");
+                if (errors.length == 0) {
+                    location.reload();
+                    // location.load("base.html");
 
                 }
-                else{
+                else {
                     // alert(errors);
                     var html = "<div class=\"alert alert-danger\">"
-                    for (var key in errors){
-                        html += errors[key]+"<br/>";
+                    for (var key in errors) {
+                        html += errors[key] + "<br/>";
                     }
                     html += "</div>";
                     $("#register-modal .modal-header").after(html);
@@ -256,31 +303,50 @@
 
             },
             //服务端异常返回值 状态：500
-            error:function(XMLHttpRequest, textStatus, errorThrown){
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert(XMLHttpRequest.responseText);
             }
         });
         return false;
     });
 
-    $("#register-button").click(function(){
+    $("#register-button").click(function () {
         $("#register-modal .alert").remove();
     });
 
-    $("#logout").click(function(){
+    $("#logout").on('click',function () {
+        debugger
         $.ajax({
-            type:"POST",
-            url:"/user/doLogout",
-            beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+            type: "POST",
+            url: "/user/doLogout",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
-            success:function(data,textStatus){
+            success: function (data, textStatus) {
                 location.replace("/");
             },
-            error:function(XMLHttpRequest, textStatus, errorThrown){
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert(XMLHttpRequest.responseText);
             }
         });
         return false;
     });
+
+    function logout(){
+        $.ajax({
+            type: "POST",
+            url: "/user/doLogout",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
+            },
+            success: function (data, textStatus) {
+                location.replace("/");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.responseText);
+            }
+        });
+    }
+
+
 </script>

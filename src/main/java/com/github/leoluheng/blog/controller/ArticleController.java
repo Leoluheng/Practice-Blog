@@ -2,17 +2,19 @@ package com.github.leoluheng.blog.controller;
 
 import com.github.leoluheng.blog.service.CommentService;
 import com.github.leoluheng.blog.service.ContentService;
+import com.github.leoluheng.blog.service.IpService;
 import com.github.leoluheng.blog.service.UserService;
 import com.jfinal.core.Controller;
+import sun.net.util.IPAddressUtil;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ArticleController extends Controller {
     ContentService contentManager = ContentService.getInstance();
     UserService userManager = UserService.getInstance();
     CommentService commentManager = CommentService.getInstance();
+
     // members
     // static block
     static {
@@ -25,22 +27,36 @@ public class ArticleController extends Controller {
     // public methods
 
     public void index() {
-        String param = getPara("address");
-        Map<String, Object> article = contentManager.get_article(param);
-        String tags = article.get("tags").toString();
-
-        setAttr("category_url", contentManager.get_article_category(article.get("category").toString()));
-        setAttr("article", article);
-        setAttr("tags", contentManager.get_tags(tags));
-
-        String thisUsername = getSessionAttr("username");
-        setAttr("user_img", userManager.getTx(thisUsername));
-        int article_id = Integer.parseInt(article.get("article_id").toString());
-        setAttr("comment_list", commentManager.get_Comment_List(article_id));
-
-        setAttr("latest_comment_list", commentManager.get_latest_comments());
-        setAttr("hot_article_list", contentManager.get_hot_article_list());
+//        String address = getPara("address");
+//        setAttr("address",address);
         render("/WEB-INF/view/blog/article.html");
+    }
+
+    public void getArticleContentAndComment() {
+        String param = getPara("address");
+
+        System.out.println(getRequest().getRemoteAddr());
+        IpService ipManager = IpService.getInstance();
+        String ip = getRequest().getRemoteAddr();
+        int articleId = contentManager.getArticleId(param);
+        ipManager.seenIp(articleId, ip);
+
+        Map<String, Object> response = new HashMap<String, Object>();
+
+        String username = getSessionAttr("username");
+        String tx = userManager.getTx(username);
+        //Maybe we can think of another way for login&identification ?
+        response.put("user_img", tx);
+
+        contentManager.updateViewtimes(articleId, ip);
+
+        Map<String, Object> article = contentManager.getArticle(param);
+        response.put("article", article);
+
+        int article_id = Integer.parseInt(article.get("article_id").toString());
+        response.put("commentList", commentManager.getCommentList(article_id));
+
+        renderJson(response);
     }
 
     // protected methods

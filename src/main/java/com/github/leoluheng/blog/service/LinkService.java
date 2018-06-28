@@ -3,6 +3,7 @@ package com.github.leoluheng.blog.service;
 
 import com.github.leoluheng.blog.entity.LinkAdder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,8 @@ public class LinkService {
         }
         return instance;
     }
-    public Map<Integer, Map<String, Object>> get_links() {
-        Map<Integer, Map<String, Object>> link_list = new HashMap<Integer, Map<String, Object>>();
+    public List<Map<String, Object>> getLinks() {
+        List<Map<String, Object>> link_list = new ArrayList<Map<String, Object>>();
         String[] color = new String[]{"primary", "success", "info", "warning", "danger"};
 
         List<LinkAdder> linkSheet = LinkAdder.dao.find("select link.title as title, link.url as url from" +
@@ -32,7 +33,7 @@ public class LinkService {
             map.put("title", link.get("title"));
             map.put("url", link.get("url"));
             map.put("color",color[(int)(Math.random()*5)]);
-            link_list.put(i,map);
+            link_list.add(map);
         }
         return link_list;
     }

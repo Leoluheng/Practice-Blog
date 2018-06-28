@@ -1,47 +1,38 @@
-
-<div class="all-post clearfix underline">
+<div v-for="post in articleList" class="all-post clearfix underline">
     <div class="post-title clearfix">
-        <a href="/category/#(post.category)">
+        <a :href="'/category/?category=' + post.category">
             <div class="pre-cat">
                 <div class="pre-catinner btn">
-                    #(post.category)
+                    {{post.category}}
                 </div>
                 <div class="pre-catarrow">
                 </div>
             </div>
         </a>
-        <h1><a href="/article/#(post.enTitle)">#(post.title)</a></h1>
+        <h1><a :href="'/article/?address=' + post.enTitle">{{post.title}}</a></h1>
 
         <span class="visible-xs-inline-block" style="margin-top:7px;">
-            #(post.pub_time)
+            {{post.pub_time}}
         </span>
         <div class="post-tags">
-            #for(tag : post.get_tags)
-            <a href="/tag/?tag=#(tag)">
-                <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
+            <a v-for="(tag, index) in post.get_tags" :href="'/tag/?tag=' + tag">
+                <span :class="'label label-vmaig-' + index + 'btn'">{{tag}}</span>
             </a>
-            #end
         </div>
     </div>
     <div class="post-content ">
         <div class="row">
             <div class="col-sm-4">
                 <figure class="thumbnail">
-                    <a href="/article/#(post.enTitle)">
-                        <img src="#(post.img)"  height="400" alt="">
+                    <a :href="'/article/?address=' + post.enTitle">
+                        <img v-if="post.showImg" :src="post.img" height="400" alt="">
+                        <img v-else src="/static/img/article/default.jpg" height="400" alt="">
                     </a>
                 </figure>
             </div>
             <div class="col-sm-8">
                 <p>
-                    <!--{% autoescape off%}-->
-                    #if(post.summary.length() > 200)
-                    #(post.summary.substring(0,200))
-                    ...
-                    <!--{% endautoescape %}-->
-                    #else
-                    #(post.summary)
-                    #end
+                    {{post.summary | trimText}}
                 </p>
             </div>
         </div>
@@ -49,15 +40,16 @@
     <div class="post-info hidden-xs">
         <span>
             <span class="glyphicon glyphicon-calendar"></span>
-            #(post.pub_time)
+            {{post.pub_time}}
         </span>
         <span>
             <span class="glyphicon glyphicon-comment"></span>
-            #(post.commentNum)
+            {{post.commentNum}}
         </span>
         <span>
             <span class="glyphicon glyphicon-eye-open"></span>
-            #(post.view_times)
+            {{post.view_times}}
         </span>
     </div>
 </div>
+

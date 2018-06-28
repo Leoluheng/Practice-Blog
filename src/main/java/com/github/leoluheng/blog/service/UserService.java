@@ -1,9 +1,13 @@
 package com.github.leoluheng.blog.service;
 
+import com.github.leoluheng.blog.config.Config;
+import com.github.leoluheng.blog.entity.CommentAdder;
+import com.github.leoluheng.blog.entity.ContentAdder;
 import com.github.leoluheng.blog.entity.NotificationAdder;
 import com.github.leoluheng.blog.entity.UserAdder;
 import com.jfinal.kit.PropKit;
 import com.jfinal.kit.StrKit;
+import com.jfinal.plugin.ehcache.CacheKit;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -13,6 +17,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class UserService {
@@ -40,6 +46,14 @@ public class UserService {
             }
             return 1;
         }
+        Date latestLogin = new Date();
+        DateFormat simpleformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        int id = getId(username);
+        UserAdder user = UserAdder.dao.findById(id);
+        user.set("is_active", 1).set("last_login", simpleformat.format(latestLogin)).update();
+
+        CacheKit.put(Config.CACHE_BLOG, "isActive-"+id,"1");
+
         return 0;
     }
 
@@ -52,6 +66,8 @@ public class UserService {
         } else if (null != userSheet.get("email")) {
             return "email";
         }
+
+        CacheKit.remove(Config.CACHE_BLOG,"userList");
 
         new UserAdder().set("username", username)
                 .set("password", password).set("first_name", first_name).set("last_name", last_name)
@@ -72,9 +88,11 @@ public class UserService {
             return "email";
         }
 
+        CacheKit.remove(Config.CACHE_BLOG,"userList");
+
         new UserAdder().set("username", username)
                 .set("password", password).set("email", email)
-                .set("date_joined", date_joined).set("is_active", true).save();
+                .set("date_joined", date_joined).set("is_active", 1).save();
         return "true";
     }
 
@@ -89,8 +107,6 @@ public class UserService {
 
     public boolean changePass(int id, String credential, String newPassword) {
         UserAdder userSheet = UserAdder.dao.findById(id);
-
-
         if (userSheet == null || !credential.equals(userSheet.get("password"))) {
             return false;
         }
@@ -98,7 +114,7 @@ public class UserService {
     }
 
     public boolean verifyUser(String username, String email) {
-        UserAdder userSheet = UserAdder.dao.findFirst("select username from vmaig_auth_vmaiguser where username = ? AND" +
+        UserAdder userSheet = UserAdder.dao.findFirstByCache(Config.CACHE_BLOG,"userList","select username from vmaig_auth_vmaiguser where username = ? AND" +
                 "email = ?", username, email);
         if (null != userSheet) {
             return true;
@@ -205,16 +221,23 @@ public class UserService {
     }
 
     public void saveTx(String username, String txhref) {
-        UserAdder userSheet = new UserAdder().dao().findFirst("select username from vmaig_auth_vmaiguser where username = ?", username);
+        int id = getId(username);
+        UserAdder userSheet = new UserAdder().dao().findById(id);
         userSheet.set("img", txhref).update();
+        CacheKit.remove(Config.CACHE_BLOG, "userTx");
     }
 
     public String getTx(String username) {
-        UserAdder userSheet = new UserAdder().dao().findFirst("select img from vmaig_auth_vmaiguser where username = ?", username);
-        if(userSheet == null){
-            return null;
+        if (username == null) {
+            return "";
+        } else {
+            String img;
+            System.out.println(CacheKit.get(Config.CACHE_BLOG,"userTx"));
+            ContentAdder user = ContentAdder.dao.findFirstByCache(Config.CACHE_BLOG, "userTx", "select user.img from vmaig_auth_vmaiguser user " +
+                    "where user.username = ?", username);
+            img = user.get("img");
+            return img;
         }
-        return userSheet.get("img");
     }
 
     public int getUserNotificationNum(String username) {
@@ -229,21 +252,86 @@ public class UserService {
 //        UserAdder.class.getMethods()[0].invoke(userSheet);
     }
 
-    public Map<Integer, Map<String, Object>> get_notification_list(String username) {
-        Map<Integer, Map<String, Object>> notification_list = new HashMap<Integer, Map<String, Object>>();
-        List<NotificationAdder> notificationSheet = NotificationAdder.dao.find("select note.url as url, note.id as id, note.title as title, " +
-                "note.is_read as is_read from `vmaig_system_notification` as note, `vmaig_auth_vmaiguser` as user where note.to_user_id = user.id AND user.username = ?", username);
+    public List<Map<String, Object>> getNotificationList(String username) {
+        List<Map<String, Object>> notification_list = new ArrayList<Map<String, Object>>();
+        List<NotificationAdder> notificationSheet = NotificationAdder.dao.find("select note.url as url, note.id " +
+                "as id, note.text as text, note.is_read as is_read from `vmaig_system_notification` as note, " +
+                "`vmaig_auth_vmaiguser` as user where note.to_user_id = user.id AND user.username = ? order by id DESC"
+                , username);
         NotificationAdder notification;
         for (int i = 0; i < notificationSheet.size(); i++) {
             notification = notificationSheet.get(i);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("url", notification.get("url"));
             map.put("id", notification.get("id"));
-            map.put("title", notification.get("title"));
+            String text = notification.get("text");
+            int margin = text.indexOf(":");
+            int idLength = Integer.parseInt(text.substring(0,text.indexOf(":")));
+            map.put("text", text.substring(margin + 1 + idLength));
             map.put("is_read", notification.get("is_read"));
-            notification_list.put(i, map);
+            map.put("commentId", text.substring(margin+1, margin+1+idLength));
+            notification_list.add(map);
         }
         return notification_list;
     }
 
+    public Boolean isActive(String username){
+        int id = getId(username);
+        String cacheKey = "isActive" + id;
+        UserAdder userSheet = UserAdder.dao.findFirstByCache(Config.CACHE_BLOG,cacheKey,"select is_active from vmaig_auth_vmaiguser where username = ?", username);
+        if(userSheet != null){
+            Boolean is_active = userSheet.get("is_active");
+            return is_active;
+        }else{
+            return false;
+        }
+    }
+
+    public void doLogout(String username) {
+        int id = getId(username);
+        UserAdder userSheet = UserAdder.dao.findById(id);
+        if(userSheet == null){
+            return;
+        }
+        userSheet.set("is_active", 0).update();
+        CacheKit.remove(Config.CACHE_BLOG,"isActive-"+id);
+        CacheKit.remove(Config.CACHE_BLOG, "userTx");
+    }
+
+    public void sendNotification(String type, int fromId, int commentId, int articleId) {
+
+        //Container of types info - to determine the template for notification content
+//        List<String> typeOfNotification = new ArrayList<String>();
+//        typeOfNotification.add("reply");
+        //more to add to assist with upcoming services
+        //Container of template content
+        Map<String, String> content = new HashMap<String, String>();
+        content.put("reply", "{from} replied your comment for {article}, check it out!");
+        //more to add to assist with upcoming services
+
+        CommentAdder comment = CommentAdder.dao.findById(commentId);
+        int toId = comment.get("user_id");          //user_id of whom is getting this notification
+
+        UserAdder fromUserSheet = UserAdder.dao.findById(fromId);
+        String fromUser = fromUserSheet.get("username");
+
+        ContentAdder article = ContentAdder.dao.findById(articleId);
+        String articleTitle = article.get("title");
+        String articleUrl = article.get("en_title");
+
+        String notificationText = Integer.toString(commentId).length() +
+        ":" + commentId + content.get(type).replace("{from}",fromUser)
+                .replace("{article}",articleTitle);
+        Date now = new Date();
+        DateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        new NotificationAdder().set("title", type).set("text", notificationText).set("url",articleUrl).set("type", type)
+                .set("from_user_id",fromId).set("to_user_id",toId).set("create_time", simpleFormat.format(now)).save();
+
+    }
+
+    public void doReadNotification(int notificationId) {
+        NotificationAdder notification = NotificationAdder.dao.findById(notificationId);
+        notification.set("is_read", 1).update();
+    }
 }

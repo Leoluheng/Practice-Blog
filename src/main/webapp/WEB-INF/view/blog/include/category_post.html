@@ -1,53 +1,39 @@
-#for(post : (article_list))
-
-<div class="all-post clearfix underline">
+<div v-for="post in article_list" class="all-post clearfix underline">
     <div class="post-title clearfix">
-        <a href="#/category/?category=#(post.category)">
+        <a :href="'/category/?category=' + post.category">
             <div class="pre-cat">
                 <div class="pre-catinner btn">
-                    #(post.category)
+                    {{post.category}}
                 </div>
                 <div class="pre-catarrow">
                 </div>
             </div>
         </a>
-        <h1><a href="/article/?address=#(post.enTitle)">#(post.title)</a></h1>
+        <h1><a :href="'/article/?address=' + post.enTitle">{{post.title}}</a></h1>
 
         <span class="visible-xs-inline-block" style="margin-top:7px;">
             <!--{{post.pub_time|date:"Y-m-d"}}-->
-            #(post.pub_time)
+            {{post.pub_time | trimDate}}
         </span>
         <div class="post-tags">
-            #for(tag: post.get_tags)
-
-            <a href="/tag/?tag=#(tag)">
-                <span class="label label-vmaig-#(for.count) btn">#(tag)</span>
+            <a v-for="(tag, index) in post.get_tags" :href="'/tag/?tag=' + tag">
+                <span :class="'label label-vmaig-' + index + ' btn'">{{tag}}</span>
             </a>
-            #end
         </div>
     </div>
     <div class="post-content ">
         <div class="row">
             <div class="col-sm-4">
                 <figure class="thumbnail">
-                    <a href="#(article_url)">
-                        <img src="#(post.img)"  height="400" alt="">
+                    <a :href="'/article/?address=' + post.enTitle">
+                        <img v-if="post.showImg" :src="post.img" height="400" alt="">
+                        <img v-else src="/static/img/article/origin.jpg" height="400" alt="">
                     </a>
                 </figure>
             </div>
             <div class="col-sm-8">
                 <p>
-                    <!--{% autoescape off%}-->
-                    #--#[[--#
-                    #if(post.summary.length() > 200)
-                        #(post.summary.substring(0,200))
-                    ...
-
-                    #else
-                        #(post.summary)
-                    <!--{% endautoescape %}-->
-                    #--]]#--#
-                    #end
+                    {{post.summary | trimText}}
                 </p>
             </div>
         </div>
@@ -56,16 +42,15 @@
         <span>
             <span class="glyphicon glyphicon-calendar"></span>
             <!--{{post.pub_time|date:"Y-m-d" }}-->
-            #date(post.pub_time, "yyyy-MM-dd")
+            {{post.pub_time}}
         </span>
         <span>
             <span class="glyphicon glyphicon-comment"></span>
-            #(post.comment_Num)
+            {{post.comment_num}}
         </span>
         <span>
             <span class="glyphicon glyphicon-eye-open"></span>
-            #(post.view_times)
+            {{post.view_times}}
         </span>
     </div>
 </div>
-#end

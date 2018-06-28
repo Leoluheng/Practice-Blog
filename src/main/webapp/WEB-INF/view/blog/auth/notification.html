@@ -1,42 +1,61 @@
 <div id="notification" class="well clearfix">
     <h2 class="underline">消息</h2>
     <div class="list-group">
-        #for(notification : (notification_list))
-        <a href="#if('' != notification.url)(notification.url)#else#end"
+        <a v-for="notification in notificationList" @click="readNotif(notification)"
            class="list-group-item"
-           value="#(notification.id)"
+           :value="notification.id"
            style="border-top-left-radius: 0px;border-top-right-radius: 0px;">
-            #(notification.title)
-            #if(1 == notification.is_read)
-            <span class="label label-info pull-right">已读</span>
-            #else
-            <span class="label label-warning pull-right">未读</span>
-            #end
+            {{notification.text}}
+            <span v-if="notification.is_read == 1" class="label label-info pull-right">已读</span>
+            <span v-else class="label label-warning pull-right">未读</span>
         </a>
-        #end
     </div>
 </div>
 
 <script language="javascript" type="text/javascript">
-
-    $('#notification .list-group-item').click(function () {
-        $.ajax({
-            type: "POST",
-            url: "/user/get_notification_content",
-            data: {"notification_id": $(this).attr("value")},
-            dataType: 'json',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
-            },
-            success: function (data, textStatus) {
-                window.location.href = data['url'];
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert(XMLHttpRequest.responseText);
+    $.ajax({
+        type: "post",
+        url: "/user/doNotification",
+        dataType: "json",
+        success: function (data, textStatus) {
+            var notificationList = data["notificationList"];
+            if (notificationList.length === 0) {
+                $("#notification .list-group").empty().html('<div class="underline">No unread notification</div>');
+            } else {
+                var vm_notification = new Vue({
+                    el: "#notification .list-group",
+                    data: {
+                        "notificationList": notificationList
+                    },
+                    methods: {
+                        readNotif: function (notif) {
+                            $.ajax({
+                                type: "POST",
+                                url: "/user/setNotificationRead",
+                                data: {"notification_id": notif.id}, //$(this).attr("value")
+                                dataType: 'json',
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
+                                },
+                                success: function (data, textStatus) {
+                                    window.location.href = '/article/?address=' + notif.url + '#comment' + notif.commentId;
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    alert(XMLHttpRequest.responseText);
+                                }
+                            });
+                            return false;
+                        }
+                    }
+                });
             }
+        },
+        error: function () {
 
-        });
-        return false;
+        }
     });
+
+    // $('#notification .list-group-item').click();
+
 
 </script>

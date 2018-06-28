@@ -51,7 +51,7 @@
     $("#upload-tx").change(function(){
 
         if(typeof FileReader == "undefined"){
-            alert("您的浏览器不支持FileReader对象！");
+            alert("Your browser does not support FileReader!");
         }
 
         var file = this.files[0];
@@ -86,7 +86,7 @@
 
         var data=canvas.toDataURL();
 
-        // dataURL 的格式为 “data:image/png;base64,****”,逗号之前都是一些说明性的文字，我们只需要逗号之后的就行了
+        // dataURL looks like: “data:image/png;base64,****”, notice the descriptive params before ',', only the **** is useful
         data=data.split(',')[1];
         data=window.atob(data);
         var ia = new Uint8Array(data.length);
@@ -94,22 +94,24 @@
             ia[i] = data.charCodeAt(i);
         };
 
-        // canvas.toDataURL 返回的默认格式就是 image/png
+        // canvas.toDataURL default type -> image/png
         var blob=new Blob([ia], {type:"image/jpg"});
 
         var fd=new FormData();
 
         fd.append('file',blob);
+        //debugger;
         $.ajax({
             url:"/user/dochangetx",
             type:"POST",
+            dataType: "json",
             data:{"tx":canvas.toDataURL().split(',')[1]},
             beforeSend:function(xhr){
-                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                xhr.setRequestHeader("csrf-token", $.cookie('csrf-token'));
             },
             success:function(data,textStatus){
                 alert(data);
-                location.reload();
+                top.location.reload();
             },
             error:function(XMLHttpRequest, textStatus, errorThrown){
                 alert(XMLHttpRequest.responseText);
@@ -121,16 +123,16 @@
 
 
     function preImage(url,callback){
-        var img = new Image(); //创建一个Image对象，实现图片的预下载
+        var img = new Image(); //Initialize an img object for preview
         img.src = url;
 
-        if (img.complete) { // 如果图片已经存在于浏览器缓存，直接调用回调函数
+        if (img.complete) { //If the img exists in browser's cache, callback
             callback.call(img);
-            return; // 直接返回，不用再处理onload事件
+            return; // return without caring the onload event
         }
 
-        img.onload = function () { //图片下载完毕时异步调用callback函数。
-            callback.call(img);//将回调函数的this替换为Image对象
+        img.onload = function () { //callback evoked asynchronously when img done uploading
+            callback.call(img);//pass in img object
         };
     }
 
