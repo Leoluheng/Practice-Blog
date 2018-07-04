@@ -34,14 +34,17 @@ public class ArticleController extends Controller {
 
     public void getArticleContentAndComment() {
         String param = getPara("address");
+        int articleId = contentManager.getArticleId(param);
+        Map<String, Object> response = new HashMap<String, Object>();
 
-        System.out.println(getRequest().getRemoteAddr());
+        if (-1 == articleId) {
+            renderJson(response);
+        }
+//        System.out.println(getRequest().getRemoteAddr());
         IpService ipManager = IpService.getInstance();
         String ip = getRequest().getRemoteAddr();
-        int articleId = contentManager.getArticleId(param);
         ipManager.seenIp(articleId, ip);
 
-        Map<String, Object> response = new HashMap<String, Object>();
 
         String username = getSessionAttr("username");
         String tx = userManager.getTx(username);

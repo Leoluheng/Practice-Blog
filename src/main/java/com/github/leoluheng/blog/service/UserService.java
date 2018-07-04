@@ -5,6 +5,7 @@ import com.github.leoluheng.blog.entity.CommentAdder;
 import com.github.leoluheng.blog.entity.ContentAdder;
 import com.github.leoluheng.blog.entity.NotificationAdder;
 import com.github.leoluheng.blog.entity.UserAdder;
+import com.jfinal.kit.HashKit;
 import com.jfinal.kit.PropKit;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.ehcache.CacheKit;
@@ -37,7 +38,7 @@ public class UserService {
 
     public int verifyLogin(String username, String password) {
         List<UserAdder> userSheet = UserAdder.dao.find("select username from vmaig_auth_vmaiguser where " +
-                "username = ?  AND  password = ?", username, password);
+                "username = ?  AND  password = ?", username, HashKit.md5(password));
         if(userSheet.size() == 0){
             userSheet = UserAdder.dao.find("select username from vmaig_auth_vmaiguser where " +
                     "username = ?  ", username);
@@ -70,8 +71,9 @@ public class UserService {
         CacheKit.remove(Config.CACHE_BLOG,"userList");
 
         new UserAdder().set("username", username)
-                .set("password", password).set("first_name", first_name).set("last_name", last_name)
-                .set("email", email).set("date_joined", date_joined).set("is_active", 1).save();
+                .set("password", HashKit.md5(password)).set("first_name", first_name).set("last_name", last_name)
+                .set("email", email).set("date_joined", date_joined).set("is_active", 1).set("last_login", date_joined)
+                .save();
         return "true";
     }
 
@@ -91,8 +93,8 @@ public class UserService {
         CacheKit.remove(Config.CACHE_BLOG,"userList");
 
         new UserAdder().set("username", username)
-                .set("password", password).set("email", email)
-                .set("date_joined", date_joined).set("is_active", 1).save();
+                .set("password", HashKit.md5(password)).set("email", email)
+                .set("date_joined", date_joined).set("is_active", 1).set("last_login", date_joined).save();
         return "true";
     }
 
@@ -110,7 +112,7 @@ public class UserService {
         if (userSheet == null || !credential.equals(userSheet.get("password"))) {
             return false;
         }
-        return userSheet.set("password", newPassword).update();
+        return userSheet.set("password", HashKit.md5(newPassword)).update();
     }
 
     public boolean verifyUser(String username, String email) {

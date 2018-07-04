@@ -137,8 +137,10 @@ public class UserController extends Controller {
 
     public void doChangePassword() {
         String username, oldPassword, newPassword, newPassword1, status;
-        status = getSessionAttr("isActive");
+        status = getSessionAttr("is_active");
         Boolean isActive = Boolean.parseBoolean(status);
+        Map<String, List<String>> response = new HashMap<String, List<String>>();
+
         if (!isActive) {
             return;
         }
@@ -147,7 +149,6 @@ public class UserController extends Controller {
         newPassword = getPara("new_password1");
         newPassword1 = getPara("new_password2");
 
-        Map<String, List<String>> response = new HashMap<String, List<String>>();
         List<String> errors = new ArrayList<String>();
         if (newPassword.equals("") || newPassword1.equals("")) {
             errors.add("All fields need to be filled");
@@ -171,10 +172,12 @@ public class UserController extends Controller {
             response.put("errors", errors);
             renderJson(response);
         }
-        renderJson(response);
         removeSessionAttr("username");
         removeSessionAttr("isActive");
         userManager.doLogout(username);
+        delToken();
+        renderJson(response);
+
 //        redirect("/login");
     }
 

@@ -9,6 +9,11 @@
             "address": address
         },
         success: function (data, textStatus) {
+            if(data.length === 0){
+                $("#vmaig-content").html("<div><h1><b>The requested article does not exist.</b></h1></div>");
+                $(".vmaig-comment").find("ul").remove(); //or use empty() so that later comments added by this user can be simply inserted
+                return;
+            }
             var article = data["article"]; //Map<String, object>
             var commentList = data["commentList"]; //List<Map<String, Object>>
             var user_img = data["user_img"]; //String
@@ -57,8 +62,20 @@
                         reply: function (username, id) {
                             return CommentQuote(username, id);
                         }
+                    },
+                    mounted: function(){
+                        this.$nextTick(function(){
+                            if(window.location.search.toString().includes("#")){
+                                window.location.href = window.location.href;
+                                return;
+                            }
+                    })
                     }
+
                 });
+
+
+
                 $('#submitComment').click(function () {
                     $.ajax({
                         type: "POST",
